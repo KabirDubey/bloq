@@ -28,15 +28,16 @@ done
 # Build: (cd rust && CARGO_TARGET_DIR=../../target cargo build --release --offline). 2d rounds each.
 # This rewrites the .check.json without sinter results; rerun check.py with --sinter for those.
 gen=${GEN:-$here/../target/release/low-gadgets}
-for name in g1_memory_xtop_z g1_memory_xtop_x; do
+for name in g1_memory_xtop_z g1_memory_xtop_x g2_memory_ztop_z g2_memory_ztop_x; do
   if [[ -n "${prefixes[0]}" ]]; then
     match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
     (( match )) || continue
   fi
   basis=${name##*_}
+  top=x-top; [[ $name == g2_* ]] && top=z-top
   for d in 3 5; do
     out="$here/out/${name}_d$d"
-    "$gen" compact-memory x-top "$basis" "$d" $((2 * d)) "$out.stim"
+    "$gen" compact-memory "$top" "$basis" "$d" $((2 * d)) "$out.stim"
     "$py" "$check" "$out.stim" --d "$d" --rounds $((2 * d)) --json "$out.check.json" > /dev/null
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
