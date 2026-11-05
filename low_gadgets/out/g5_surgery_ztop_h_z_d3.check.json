@@ -1,0 +1,42 @@
+{
+ "circuit": "low_gadgets/out/g5_surgery_ztop_h_z_d3.stim",
+ "d": 3,
+ "expect": 3,
+ "p": 0.001,
+ "qubits": 36,
+ "ticks": 54,
+ "detectors": 146,
+ "observables": 2,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 3,
+  "per_observable": [
+   3,
+   3
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 34884,
+  "errors": 290,
+  "per_shot": 0.008313266827198715,
+  "per_shot_ci": [
+   0.006633986928104575,
+   0.010251977984176127
+  ],
+  "rounds": 9,
+  "per_round": 0.0009271271454688312,
+  "per_round_ci": [
+   0.00073929210286372,
+   0.0011443326921235508
+  ],
+  "seconds": 0.06496945692924783
+ },
+ "pass": true
+}

@@ -73,3 +73,21 @@ for name in g4_walking_xtop_z g4_walking_xtop_x g4_walking_ztop_z g4_walking_zto
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done
+
+# G5: lattice-surgery merge and split (Figs. 50, 51): two patches, merged along a horizontal (h) or
+# vertical (v) seam, then split. Rounds: 2 separate, 2 + m merged, 2 split, 2 separate; m = d - 2,
+# so d merged rounds (arXiv:2605.30455 section 1.2; A11, A15).
+for top in x-top z-top; do for o in h v; do for basis in z x; do
+  name=g5_surgery_${top/-/}_${o}_${basis}
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    m=$(( d - 2 ))
+    "$gen" surgery "$top" "$o" "$basis" "$d" "$out.stim"
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((8 + m)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done; done; done

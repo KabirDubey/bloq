@@ -10,14 +10,19 @@
 //! Usage: `low-gadgets compact-memory <x-top|z-top> <x|z> <d> <rounds> <out.stim>`
 //! (x-top: Fig. 5 left and (c); z-top: Fig. 5 right and (d)), and
 //! `low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>` (Fig. 7), and
-//! `low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>` (Fig. 48; one step per 2 rounds).
+//! `low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>` (Fig. 48; one step per 2 rounds), and
+//! `low-gadgets surgery <x-top|z-top> <h|v> <x|z> <d> <out.stim>` (Figs. 50, 51; H-bridge of width 0).
 
+#[rustfmt::skip]
+mod surgery_template;
+#[rustfmt::skip]
 mod walk_template;
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use bloq_circuit::{
-    Chunk, CoordCircuit, Flow, FlowEngine, GateType, OffsetFlows, Pauli, PauliBasis, PauliMap,
+    Chunk, CoordCircuit, Flow, FlowEngine, FlowMeasurements, GateType, OffsetFlows, Pauli,
+    PauliBasis, PauliMap,
 };
 use bloq_stim::{StimFlowVerifier, emit_annotated_stim};
 use glam::IVec2;
@@ -217,9 +222,16 @@ fn cx_layers(meas: &[MeasureQubit]) -> Result<Vec<Vec<(IVec2, IVec2)>>, Error> {
 /// row (Z checks) a reset or a measurement moves to the SW neighbour on alternate checks, so those
 /// qubits change role between data and measure each round.
 fn g_z_round(d: i32) -> Result<RoundSpec, Error> {
-    let qubits: Vec<IVec2> = (0..2 * d)
-        .flat_map(|y| (0..2 * d).map(move |x| IVec2::new(x, y)))
-        .filter(|q| (q.x + q.y) % 2 == 1 && *q != IVec2::new(0, 2 * d - 1))
+    g_z_rect(d, d)
+}
+
+/// `g_z_round` on a patch of w x h data qubits (the merged patch of a lattice surgery). The rules
+/// are those of the square patch with every phase taken from the checkerboard parity a + b, which
+/// at w = h = d (odd) gives back the square rules (assumption A12 in the log).
+fn g_z_rect(w: i32, h: i32) -> Result<RoundSpec, Error> {
+    let qubits: Vec<IVec2> = (0..2 * h)
+        .flat_map(|y| (0..2 * w).map(move |x| IVec2::new(x, y)))
+        .filter(|q| (q.x + q.y) % 2 == 1 && *q != IVec2::new(0, 2 * h - 1))
         .collect();
     let exists: HashSet<IVec2> = qubits.iter().copied().collect();
     let mut layers = vec![Vec::new(); 4];
@@ -231,12 +243,12 @@ fn g_z_round(d: i32) -> Result<RoundSpec, Error> {
             layers[tick].push(if measure_controls { (m, n) } else { (n, m) });
         }
     };
-    for b in 0..d {
-        for a in 0..d {
+    for b in 0..h {
+        for a in 0..w {
             let m = IVec2::new(2 * a + 1, 2 * b);
             let even = (a + b) % 2 == 0;
             // Ticks 1 and 4: the SW neighbour.
-            if b == d - 1 {
+            if b == h - 1 {
                 if a > 0 {
                     add(0, m, SW, false);
                     add(3, m, SW, false);
@@ -250,11 +262,11 @@ fn g_z_round(d: i32) -> Result<RoundSpec, Error> {
             }
             // Ticks 2 and 3: as in G_X.
             if b == 0 {
-                if a < d - 1 {
+                if a < w - 1 {
                     add(if a % 2 == 0 { 1 } else { 2 }, m, SE, true);
                 }
-            } else if a == d - 1 {
-                add(if (d + b) % 2 == 0 { 1 } else { 2 }, m, NW, false);
+            } else if a == w - 1 {
+                add(if (w + b) % 2 == 0 { 1 } else { 2 }, m, NW, false);
             } else if even {
                 add(1, m, SE, true);
                 add(2, m, NW, false);
@@ -263,17 +275,21 @@ fn g_z_round(d: i32) -> Result<RoundSpec, Error> {
                 add(2, m, SE, true);
             }
             // Resets and measurements.
-            if a == 0 && b < d - 1 {
+            if a == 0 && b < h - 1 {
                 let moved = IVec2::new(0, 2 * b + 1);
                 let (r, me) = if b % 2 == 0 { (m, moved) } else { (moved, m) };
                 resets.push((r, B::X));
                 measures.push((me, B::X));
-            } else if b == d - 1 && a > 0 {
-                let moved = IVec2::new(2 * a, 2 * d - 1);
-                let (r, me) = if a % 2 == 1 { (m, moved) } else { (moved, m) };
+            } else if b == h - 1 && a > 0 {
+                let moved = IVec2::new(2 * a, 2 * h - 1);
+                let (r, me) = if (a + b) % 2 == 1 {
+                    (m, moved)
+                } else {
+                    (moved, m)
+                };
                 resets.push((r, B::Z));
                 measures.push((me, B::Z));
-            } else if a > 0 || b < d - 1 {
+            } else if a > 0 || b < h - 1 {
                 let (r, me) = if even { (B::X, B::Z) } else { (B::Z, B::X) };
                 resets.push((m, r));
                 measures.push((m, me));
@@ -347,7 +363,10 @@ impl Pauli2 {
 }
 
 /// The Pauli bits of `p` that a qubit in `allowed` would not accept (Y on any other qubit).
-fn wrong_bits(p: &Pauli2, allowed: &HashMap<IVec2, B>) -> std::collections::BTreeSet<(i32, i32, bool)> {
+fn wrong_bits(
+    p: &Pauli2,
+    allowed: &HashMap<IVec2, B>,
+) -> std::collections::BTreeSet<(i32, i32, bool)> {
     p.0.iter()
         .flat_map(|(&(x, y), &(px, pz))| {
             let bad = match allowed.get(&IVec2::new(x, y)) {
@@ -367,18 +386,19 @@ fn wrong_bits(p: &Pauli2, allowed: &HashMap<IVec2, B>) -> std::collections::BTre
 /// `target` times the product of `items` that cancels its disallowed part, if one exists.
 fn fix_by(target: Pauli2, items: &[Pauli2], allowed: &HashMap<IVec2, B>) -> Option<Pauli2> {
     let mut pivots: Vec<(std::collections::BTreeSet<(i32, i32, bool)>, Pauli2)> = Vec::new();
-    let reduce = |mut w: std::collections::BTreeSet<(i32, i32, bool)>,
-                  mut p: Pauli2,
-                  pivots: &[(std::collections::BTreeSet<(i32, i32, bool)>, Pauli2)]| {
-        while let Some(&lead) = w.iter().next() {
-            let Some(pv) = pivots.iter().find(|pv| pv.0.iter().next() == Some(&lead)) else {
-                break;
-            };
-            w = w.symmetric_difference(&pv.0).copied().collect();
-            p = p.times(&pv.1);
-        }
-        (w, p)
-    };
+    let reduce =
+        |mut w: std::collections::BTreeSet<(i32, i32, bool)>,
+         mut p: Pauli2,
+         pivots: &[(std::collections::BTreeSet<(i32, i32, bool)>, Pauli2)]| {
+            while let Some(&lead) = w.iter().next() {
+                let Some(pv) = pivots.iter().find(|pv| pv.0.iter().next() == Some(&lead)) else {
+                    break;
+                };
+                w = w.symmetric_difference(&pv.0).copied().collect();
+                p = p.times(&pv.1);
+            }
+            (w, p)
+        };
     for it in items {
         let (w, p) = reduce(wrong_bits(it, allowed), it.clone(), &pivots);
         if !w.is_empty() {
@@ -398,7 +418,11 @@ fn deterministic(
 ) -> Vec<(Vec<usize>, Pauli2)> {
     let wrong = |p: &Pauli2| wrong_bits(p, allowed);
     let mut out = Vec::new();
-    let mut pivots: Vec<(std::collections::BTreeSet<(i32, i32, bool)>, Vec<usize>, Pauli2)> = Vec::new();
+    let mut pivots: Vec<(
+        std::collections::BTreeSet<(i32, i32, bool)>,
+        Vec<usize>,
+        Pauli2,
+    )> = Vec::new();
     for (idx, p) in items {
         let mut cur = (wrong(&p), idx, p);
         loop {
@@ -597,7 +621,10 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
             continue;
         };
         let ms: Vec<u32> = idx.iter().map(|&i| ids[i]).collect();
-        flows.push(flow.with_measurements(ms).with_center(spec.measures[idx[0]].0));
+        flows.push(
+            flow.with_measurements(ms)
+                .with_center(spec.measures[idx[0]].0),
+        );
     }
     // Forward: what each reset (or product of resets) prepares on the data at the end of the round.
     let fwd: Vec<(Vec<usize>, Pauli2)> = spec
@@ -724,60 +751,84 @@ fn orientation(top: &str, basis: B, d: i32) -> Result<(RoundSpec, Logical), Erro
 /// of the last round's data in `readout`. Every round is a verified chunk; `FlowEngine` fuses the
 /// detector flows of consecutive rounds and the logical flows give the observable.
 fn run_rounds(specs: &[RoundSpec], logical: Logical, init: B, readout: B) -> Result<String, Error> {
+    run_rounds_multi(specs, &[logical], init, readout, &|_, _| false)
+}
+
+/// As `run_rounds`, with one observable per entry of `logicals`.
+fn run_rounds_multi(
+    specs: &[RoundSpec],
+    logicals: &[Logical],
+    init: B,
+    readout: B,
+    may_start: &dyn Fn(usize, &Flow) -> bool,
+) -> Result<String, Error> {
     let mut full = CoordCircuit::new();
-    let mut built = Vec::new();
-    let mut observable = Vec::new();
-    let mut current = logical;
+    let mut built: Vec<(Round, HashMap<u32, u32>)> = Vec::new();
+    let mut observables: Vec<Vec<u32>> = vec![Vec::new(); logicals.len()];
+    let mut currents: Vec<Logical> = logicals.to_vec();
     for (r, spec) in specs.iter().enumerate() {
         let ends = Ends {
             init: (r == 0).then_some(init),
             readout: (r + 1 == specs.len()).then_some(readout),
         };
         if r > 0 {
-            // The logical may not sit on a qubit this round resets; multiply it by a single-qubit
+            // A logical may not sit on a qubit this round resets; multiply it by a single-qubit
             // Pauli the previous round fixed there.
             let (prev, map): &(Round, HashMap<u32, u32>) = built.last().expect("a previous round");
-            for &(q, _) in &spec.resets {
-                let key = (q.x, q.y);
-                let Some(&b) = current.get(&key) else {
-                    continue;
-                };
-                let (_, _, ms) = prev
-                    .fixed
-                    .iter()
-                    .find(|(k, fb, _)| *k == key && *fb == b)
-                    .ok_or_else(|| format!("round {r} resets {q}, which holds the logical"))?;
-                current.remove(&key);
-                observable.extend(ms.iter().map(|m| map[m]));
+            for (current, observable) in currents.iter_mut().zip(&mut observables) {
+                for &(q, _) in &spec.resets {
+                    let key = (q.x, q.y);
+                    let Some(&b) = current.get(&key) else {
+                        continue;
+                    };
+                    let (_, _, ms) = prev
+                        .fixed
+                        .iter()
+                        .find(|(k, fb, _)| *k == key && *fb == b)
+                        .ok_or_else(|| format!("round {r} resets {q}, which holds a logical"))?;
+                    current.remove(&key);
+                    observable.extend(ms.iter().map(|m| map[m]));
+                }
             }
             full.tick();
         }
-        let round = build_round(spec, &current, ends)?;
         let (global_ids, global_data) = emit_round(&mut full, spec, ends)?;
-        let map: HashMap<u32, u32> = round
-            .ids
-            .iter()
-            .chain(&round.data_ids)
-            .copied()
-            .zip(global_ids.iter().chain(&global_data).copied())
-            .collect();
-        let logical_flow = round.chunk.flows.last().expect("the logical flow");
-        observable.extend(logical_flow.measurements.iter().map(|m| map[m]));
-        current = round.logical_out.clone();
-        built.push((round, map));
+        let mut first = None;
+        for (current, observable) in currents.iter_mut().zip(&mut observables) {
+            let round = build_round(spec, current, ends).map_err(|e| format!("round {r}: {e}"))?;
+            let map: HashMap<u32, u32> = round
+                .ids
+                .iter()
+                .chain(&round.data_ids)
+                .copied()
+                .zip(global_ids.iter().chain(&global_data).copied())
+                .collect();
+            let logical_flow = round.chunk.flows.last().expect("the logical flow");
+            observable.extend(logical_flow.measurements.iter().map(|m| map[m]));
+            *current = round.logical_out.clone();
+            first.get_or_insert((round, map));
+        }
+        built.push(first.expect("at least one logical"));
     }
-    // A measurement can join the observable twice (logical flow and a fixed Pauli): keep odd counts.
-    let mut parity: BTreeMap<u32, bool> = BTreeMap::new();
-    for m in observable {
-        *parity.entry(m).or_default() ^= true;
-    }
-    let observable: Vec<u32> = parity
+    // A measurement can join an observable twice (logical flow and a fixed Pauli): keep odd counts.
+    let observables: Vec<(u32, Vec<u32>)> = observables
         .into_iter()
-        .filter(|&(_, odd)| odd)
-        .map(|(m, _)| m)
+        .enumerate()
+        .map(|(k, observable)| {
+            let mut parity: BTreeMap<u32, bool> = BTreeMap::new();
+            for m in observable {
+                *parity.entry(m).or_default() ^= true;
+            }
+            let ms = parity
+                .into_iter()
+                .filter(|&(_, odd)| odd)
+                .map(|(m, _)| m)
+                .collect();
+            (k as u32, ms)
+        })
         .collect();
     // Drop flows that end only on qubits the next round resets: nothing reads them.
-    let live: Vec<Vec<Flow>> = built
+    let mut live: Vec<Vec<Flow>> = built
         .iter()
         .enumerate()
         .map(|(r, (round, _))| {
@@ -792,12 +843,41 @@ fn run_rounds(specs: &[RoundSpec], logical: Logical, init: B, readout: B) -> Res
                 .collect()
         })
         .collect();
+    fuse_products(&mut live);
     let mut engine: FlowEngine<'_, u32> = FlowEngine::new();
-    for (flows, (_, map)) in live.iter().zip(&built) {
-        engine
-            .append_group_allowing_dangling(&[OffsetFlows::new(flows, IVec2::ZERO)], |_, m| {
-                map[m]
-            })?;
+    for (r, (flows, (_, map))) in live.iter().zip(&built).enumerate() {
+        // A check measured for the first time (a merge's seam) has an input no earlier round
+        // outputs: it is random, so it starts no detector. Only `may_start` checks may do so.
+        let ends: HashSet<String> = match r {
+            0 => HashSet::new(),
+            _ => live[r - 1].iter().map(|f| f.end.to_string()).collect(),
+        };
+        let mut skip = false;
+        for f in flows.iter().filter(|f| !f.start.is_empty()) {
+            if r > 0 && !ends.contains(&f.start.to_string()) {
+                if !may_start(r, f) {
+                    return Err(format!("round {r}: unmatched flow input {}", f.start).into());
+                }
+                skip = true;
+            }
+        }
+        if std::env::var_os("LOW_DEBUG").is_some() {
+            for f in flows {
+                eprintln!(
+                    "r{r} start {} end {} m{}",
+                    f.start,
+                    f.end,
+                    f.measurements.len()
+                );
+            }
+        }
+        let parts = [OffsetFlows::new(flows, IVec2::ZERO)];
+        let appended = if skip {
+            engine.append_group_skipping_unmatched_inputs(&parts, |_, m| map[m])
+        } else {
+            engine.append_group_allowing_dangling(&parts, |_, m| map[m])
+        };
+        appended.map_err(|e| format!("round {r}: {e}"))?;
     }
     let detectors: Vec<Vec<u32>> = engine
         .finish()?
@@ -807,7 +887,84 @@ fn run_rounds(specs: &[RoundSpec], logical: Logical, init: B, readout: B) -> Res
             f.measurements.into_iter().collect()
         })
         .collect();
-    Ok(emit_annotated_stim(&full, &detectors, &[(0, observable)])?)
+    Ok(emit_annotated_stim(&full, &detectors, &observables)?)
+}
+
+/// Lattice surgery (Figs. 50, 51 of arXiv:2605.30455) measures a seam check for the first time as
+/// the product of two boundary checks of the round before. The flow engine matches boundaries
+/// exactly, so add that product to the earlier round as one more flow (GF(2) elimination over the
+/// earlier round's freshly measured checks inside the seam check's support). Then drop each flow
+/// whose end no flow of the next round reads, so a boundary that comes back later (after the split)
+/// does not meet a stale copy of itself.
+fn fuse_products(live: &mut [Vec<Flow>]) {
+    for r in 1..live.len() {
+        // Merge: a check of round r reads the product of checks round r - 1 measured.
+        let ends: HashSet<String> = live[r - 1].iter().map(|f| f.end.to_string()).collect();
+        let mut extra = Vec::new();
+        for f in live[r]
+            .iter()
+            .filter(|f| !f.start.is_empty() && !ends.contains(&f.start.to_string()))
+        {
+            let parts = live[r - 1]
+                .iter()
+                .filter(|g| g.start.is_empty())
+                .map(|g| (&g.end, &g.measurements));
+            if let Some(m) = product_of(&f.start, parts) {
+                extra.push(Flow::new(PauliMap::empty(), f.start.clone()).with_measurements(m));
+            }
+        }
+        live[r - 1].extend(extra);
+        // Split: the product of checks round r measures reads a check of round r - 1.
+        let starts: HashSet<String> = live[r].iter().map(|f| f.start.to_string()).collect();
+        let mut extra = Vec::new();
+        for f in live[r - 1]
+            .iter()
+            .filter(|f| !f.end.is_empty() && !starts.contains(&f.end.to_string()))
+        {
+            let parts = live[r]
+                .iter()
+                .filter(|g| g.end.is_empty() && !g.start.is_empty())
+                .map(|g| (&g.start, &g.measurements));
+            if let Some(m) = product_of(&f.end, parts) {
+                extra.push(Flow::new(f.end.clone(), PauliMap::empty()).with_measurements(m));
+            }
+        }
+        live[r].extend(extra);
+    }
+    for r in 0..live.len().saturating_sub(1) {
+        let read: HashSet<String> = live[r + 1].iter().map(|f| f.start.to_string()).collect();
+        live[r].retain(|f| f.end.is_empty() || read.contains(&f.end.to_string()));
+    }
+}
+
+/// The measurement parity of a product of `parts` (each inside `target`'s support) equal to
+/// `target`, by Gaussian elimination; `None` if there is none.
+fn product_of<'a>(
+    target: &PauliMap,
+    parts: impl Iterator<Item = (&'a PauliMap, &'a FlowMeasurements)>,
+) -> Option<BTreeSet<u32>> {
+    let support: HashSet<IVec2> = target.iter().map(|(q, _)| *q).collect();
+    let mut pivots: Vec<(PauliMap, BTreeSet<u32>)> = Vec::new();
+    let reduce = |mut p: PauliMap, mut m: BTreeSet<u32>, pivots: &[(PauliMap, BTreeSet<u32>)]| {
+        for (pp, pm) in pivots {
+            let lead = pp.iter().next().expect("pivots are non-empty");
+            if p.get(lead.0) == Some(lead.1) {
+                p = &p ^ pp;
+                m = m.symmetric_difference(pm).copied().collect();
+            }
+        }
+        (p, m)
+    };
+    let mut used = 0;
+    for (p, ms) in parts.filter(|(p, _)| p.iter().all(|(q, _)| support.contains(q))) {
+        let (p, m) = reduce(p.clone(), ms.iter().copied().collect(), &pivots);
+        if !p.is_empty() {
+            pivots.push((p, m));
+            used += 1;
+        }
+    }
+    let (rest, m) = reduce(target.clone(), BTreeSet::new(), &pivots);
+    (rest.is_empty() && used > 1).then_some(m)
 }
 
 fn compact_memory(top: &str, basis: B, d: i32, rounds: usize) -> Result<String, Error> {
@@ -1045,7 +1202,11 @@ fn walking(top: &str, basis: B, d: i32, rounds: usize) -> Result<String, Error> 
         let out: HashSet<IVec2> = w[0].data_out().into_iter().collect();
         let inn: HashSet<IVec2> = w[1].data_in().into_iter().collect();
         if out != inn {
-            return Err(format!("walk: round {r} data out differs from round {} data in", r + 1).into());
+            return Err(format!(
+                "walk: round {r} data out differs from round {} data in",
+                r + 1
+            )
+            .into());
         }
     }
     let logical: Logical = specs[0]
@@ -1061,6 +1222,319 @@ fn walking(top: &str, basis: B, d: i32, rounds: usize) -> Result<String, Error> 
         return Err(format!("logical has weight {} at d = {d}", logical.len()).into());
     }
     run_rounds(&specs, logical, basis, basis)
+}
+
+/// Fold one doubled coordinate of a distance-d lattice surgery onto the d = 5 template along an
+/// axis with `edges` patch edges at 0, 2d, 4d, ... (doubled 0, 4d, ...; the seam is the middle
+/// one). Each point keeps its offset to the nearest edge; the bulk repeats every 4 (doubled 8),
+/// so every shift is a multiple of 8 for odd d and keeps each qubit's role.
+fn fold_axis(c2: i32, d: i32, edges: i32) -> i32 {
+    let k = ((c2 + 2 * d) / (4 * d)).clamp(0, edges - 1);
+    let mut t = c2 - 4 * d * k + 20 * k;
+    while t > 20 * k + 10 {
+        t -= 8;
+    }
+    while t < 20 * k - 10 {
+        t += 8;
+    }
+    t
+}
+
+/// One round (6 ticks: resets, 4 CX layers, measurements) of a d = 5 merge or split figure, folded
+/// to distance d. `horizontal`: the two patches sit side by side (seam along y).
+fn surgery_round(
+    ticks: &[walk_template::Tick],
+    d: i32,
+    horizontal: bool,
+) -> Result<RoundSpec, Error> {
+    let (ex, ey) = if horizontal { (3, 2) } else { (2, 3) };
+    let (w, h) = if horizontal {
+        (4 * d, 2 * d)
+    } else {
+        (2 * d, 4 * d)
+    };
+    let fx = |c2: i32| fold_axis(c2, d, ex);
+    let fy = |c2: i32| fold_axis(c2, d, ey);
+    let basis = |c: char| if c == 'X' { B::X } else { B::Z };
+    let singles = |pick: &dyn Fn(&walk_template::Tick) -> &[((i32, i32), char)]| {
+        let table: HashMap<(i32, i32), char> = pick(&ticks[0])
+            .iter()
+            .chain(pick(&ticks[5]))
+            .copied()
+            .collect();
+        let mut out = Vec::new();
+        for y in 0..=h {
+            for x in 0..=w {
+                if let Some(&b) = table.get(&(fx(2 * x) / 2, fy(2 * y) / 2)) {
+                    out.push((IVec2::new(x, y), basis(b)));
+                }
+            }
+        }
+        out
+    };
+    let resets = singles(&|t| t.resets);
+    let measures = singles(&|t| t.measures);
+    let mut layers = Vec::new();
+    for tick in &ticks[1..5] {
+        if tick.gates.iter().any(|g| g.0) {
+            return Err("surgery: the merge and split figures have no CXSwap".into());
+        }
+        let table: HashSet<((i32, i32), (i32, i32))> = tick
+            .gates
+            .iter()
+            .map(|&(_, c, t)| ((c.0 + t.0, c.1 + t.1), (t.0 - c.0, t.1 - c.1)))
+            .collect();
+        let mut layer = Vec::new();
+        for y in 0..=h {
+            for x in 0..=w {
+                for dir in [(1, 1), (1, -1), (-1, 1), (-1, -1)] {
+                    if table.contains(&((fx(2 * x + dir.0), fy(2 * y + dir.1)), dir)) {
+                        let c = IVec2::new(x, y);
+                        layer.push((c, c + IVec2::new(dir.0, dir.1)));
+                    }
+                }
+            }
+        }
+        let mut used = HashSet::new();
+        if !layer.iter().all(|&(c, t)| used.insert(c) && used.insert(t)) {
+            return Err(format!("surgery: a qubit is used twice in a CX layer at d = {d}").into());
+        }
+        layers.push(layer);
+    }
+    let mut qubits: Vec<IVec2> = resets.iter().chain(&measures).map(|&(q, _)| q).collect();
+    qubits.extend(layers.iter().flatten().flat_map(|&(c, t)| [c, t]));
+    qubits.sort_by_key(|q| (q.y, q.x));
+    qubits.dedup();
+    Ok(RoundSpec {
+        qubits,
+        resets,
+        h_first: Vec::new(),
+        layers,
+        measures,
+    })
+}
+
+/// Make consecutive rounds agree on their data. A data qubit of one round that the next round does
+/// not touch idles through it; a data qubit the next round needs and the previous round does not
+/// touch is reset there in `fresh` (the bridge qubits of Sec. 1.2 step 2, and the spare corner of
+/// the Z-top figures; assumption A13 in the log). Any other disagreement is an error.
+fn glue(specs: &mut [RoundSpec], fresh: B) -> Result<(), Error> {
+    for r in 0..specs.len() - 1 {
+        let (head, tail) = specs.split_at_mut(r + 1);
+        let (prev, next) = (&mut head[r], &mut tail[0]);
+        let out: HashSet<IVec2> = prev.data_out().into_iter().collect();
+        let inn: HashSet<IVec2> = next.data_in().into_iter().collect();
+        for &q in &out {
+            if !inn.contains(&q) {
+                if next.qubits.contains(&q) {
+                    return Err(format!("round {} drops data qubit {q}", r + 1).into());
+                }
+                next.qubits.push(q);
+            }
+        }
+        for &q in &inn {
+            if !out.contains(&q) {
+                let gated = prev.layers.iter().flatten().any(|&(c, t)| c == q || t == q);
+                if !gated && prev.measures.iter().any(|&(m, _)| m == q) {
+                    // A corner the round only measures (no gate): keep it as data instead.
+                    prev.measures.retain(|&(m, _)| m != q);
+                    continue;
+                }
+                if prev.measures.iter().any(|&(m, _)| m == q) {
+                    // The Z-top merge (Fig. 51) starts with the corner the split round B resets in X
+                    // already in use; read that as a reset the figure does not draw (assumption A13).
+                    next.resets.push((q, fresh));
+                    continue;
+                }
+                if prev.qubits.contains(&q) {
+                    return Err(format!(
+                        "round {} needs data qubit {q} that round {r} measures",
+                        r + 1
+                    )
+                    .into());
+                }
+                prev.qubits.push(q);
+                prev.resets.push((q, fresh));
+            }
+        }
+    }
+    Ok(())
+}
+
+/// The logical of one patch at offset `o`: the data column (home x - o.x == 2 line) or row
+/// (home y - o.y == 2 line + 1) of the round's input data inside the patch.
+fn patch_logical(
+    top: &str,
+    basis: B,
+    d: i32,
+    spec: &RoundSpec,
+    o: IVec2,
+    line: i32,
+) -> Result<Logical, Error> {
+    let column = matches!((top, basis), ("x-top", B::X) | ("z-top", B::Z));
+    let data: HashSet<IVec2> = spec.data_in().into_iter().collect();
+    // Z-top data moves onto slots: one on (x, y) with x odd came from (x - 1, y + 1). Pick the
+    // line by these home sites; where a moved qubit and an unused corner share a home (the corner
+    // carries a weight-3 Z check), the moved one is on the line.
+    let home = |q: IVec2| {
+        if q.x % 2 == 0 {
+            q
+        } else {
+            IVec2::new(q.x - 1, q.y + 1)
+        }
+    };
+    let l: Logical = data
+        .iter()
+        .filter(|&&q| q.x % 2 == 1 || !data.contains(&IVec2::new(q.x + 1, q.y - 1)))
+        .filter(|&&q| {
+            let h = home(q) - o;
+            h.x >= 0
+                && h.y >= 0
+                && h.x < 2 * d
+                && h.y < 2 * d
+                && if column {
+                    h.x == 2 * line
+                } else {
+                    h.y == 2 * line + 1
+                }
+        })
+        .map(|q| ((q.x, q.y), basis))
+        .collect();
+    if l.len() != d as usize {
+        return Err(format!("patch logical has weight {} at d = {d}", l.len()).into());
+    }
+    Ok(l)
+}
+
+/// H-bridge lattice surgery with bridge width 0 (arXiv:2605.30455, Sec. 1.2; Figs. 50 and 51):
+/// two patches, 2 separate rounds, merge (rounds A and B of the merge figure), merged rounds, split
+/// (rounds A and B of the split figure), 2 separate rounds; perfect preparation and readout in
+/// `basis`. With d - 2 middle rounds the patches are merged for d rounds; d + 6 rounds in all (A11).
+/// Observables: each patch's logical when `basis` is the one the merge measures (XX or ZZ), else
+/// the product of the two.
+fn surgery(top: &str, orient: &str, basis: B, d: i32) -> Result<String, Error> {
+    if d < 3 || d % 2 == 0 {
+        return Err("need odd d >= 3".into());
+    }
+    let horizontal = match orient {
+        "h" => true,
+        "v" => false,
+        other => return Err(format!("{other}: want h or v").into()),
+    };
+    use surgery_template as t;
+    let (merge, split) = match (top, horizontal) {
+        ("x-top", true) => (t::X_H_MERGE, t::X_H_SPLIT),
+        ("x-top", false) => (t::X_V_MERGE, t::X_V_SPLIT),
+        ("z-top", true) => (t::Z_H_MERGE, t::Z_H_SPLIT),
+        ("z-top", false) => (t::Z_V_MERGE, t::Z_V_SPLIT),
+        (other, _) => return Err(format!("{other}: want x-top or z-top").into()),
+    };
+    let ma = surgery_round(&merge[0..6], d, horizontal)?;
+    let mb = surgery_round(&merge[6..12], d, horizontal)?;
+    let sa = surgery_round(&split[0..6], d, horizontal)?;
+    let sb = surgery_round(&split[6..12], d, horizontal)?;
+    let o = if horizontal {
+        IVec2::new(2 * d, 0)
+    } else {
+        IVec2::new(0, 2 * d)
+    };
+    // Separate rounds: split round B, which measures no inter-boundary stabilizer, and its inverse.
+    // (A shifted copy of the single-patch round does not fit: the second patch sits on the merged
+    // checkerboard, which at odd d is the mirror of its own.)
+    let g = sb.clone();
+    let gi = sb.inverse();
+    let mut middle = Vec::new();
+    if top == "x-top" {
+        let mbi = mb.inverse();
+        // d - 2 middle rounds, so d merged rounds in all (arXiv:2605.30455 section 1.2); an odd
+        // count, since mB's output does not chain into split round A and mB^-1's does (A11).
+        for k in 0..d - 2 {
+            middle.push(if k % 2 == 0 { mbi.clone() } else { mb.clone() });
+        }
+    } else {
+        let mut gm = if horizontal {
+            g_z_rect(2 * d, d)?
+        } else {
+            g_z_rect(d, 2 * d)?
+        };
+        // The merged patch of the figures keeps each patch's spare corner qubit as data (it sits
+        // in a weight-3 check); g_z_rect leaves it out. Graft in the corner's gates from mB^-1,
+        // whose corner data agree with mB's output (A14).
+        let mbi = mb.inverse();
+        let have: HashSet<IVec2> = gm.data_in().into_iter().collect();
+        for q in mb.data_out().into_iter().filter(|q| !have.contains(q)) {
+            gm.qubits.push(q);
+            for (k, layer) in mbi.layers.iter().enumerate() {
+                for &(c, t) in layer.iter().filter(|&&(c, t)| c == q || t == q) {
+                    let busy = gm.layers[k]
+                        .iter()
+                        .any(|&(a, b)| [a, b].contains(&c) || [a, b].contains(&t));
+                    if !busy {
+                        gm.layers[k].push((c, t));
+                    }
+                }
+            }
+        }
+        let gmi = gm.inverse();
+        // d - 2 middle rounds, as for the X-top. With fewer, an individual observable that takes in
+        // the merge outcome has timelike distance below d (3 at d = 5 with 1 middle round; A15).
+        for k in 0..d - 2 {
+            middle.push(if k % 2 == 0 { gm.clone() } else { gmi.clone() });
+        }
+    }
+    // Separate rounds before and after: the phase (G, G^-1 or G^-1, G) whose data agrees with
+    // the figure rounds next to them.
+    let mut errors = Vec::new();
+    for (pre, post) in [
+        ((&g, &gi), (&g, &gi)),
+        ((&gi, &g), (&g, &gi)),
+        ((&g, &gi), (&gi, &g)),
+        ((&gi, &g), (&gi, &g)),
+    ] {
+        for fresh in [B::X, B::Z] {
+            let mut specs = vec![pre.0.clone(), pre.1.clone(), ma.clone(), mb.clone()];
+            specs.extend(middle.iter().cloned());
+            specs.extend([sa.clone(), sb.clone(), post.0.clone(), post.1.clone()]);
+            if let Err(e) = glue(&mut specs, fresh) {
+                errors.push(format!("glue: {e}"));
+                continue;
+            }
+            // The merge measures the product of the logicals parallel to the seam; each of those
+            // survives alone, the perpendicular ones only as a product.
+            let column = matches!((top, basis), ("x-top", B::X) | ("z-top", B::Z));
+            let cross = column == horizontal;
+            // The second data line of each patch: the first one passes the Z-top spare corner,
+            // whose extra degree of freedom a weight-1 error flips (A14).
+            let line = 1;
+            let l1 = patch_logical(top, basis, d, &specs[0], IVec2::ZERO, line)?;
+            let l2 = patch_logical(top, basis, d, &specs[0], o, line)?;
+            let logicals = if cross {
+                vec![l1, l2]
+            } else {
+                vec![l1.into_iter().chain(l2).collect()]
+            };
+            // Seam checks: within one data column (or row) of the boundary between the patches.
+            let seam = |_: usize, f: &Flow| {
+                f.start.iter().all(|(q, _)| {
+                    let c = if horizontal { q.x } else { q.y };
+                    (2 * d - 3..=2 * d + 1).contains(&c)
+                })
+            };
+            match run_rounds_multi(&specs, &logicals, basis, basis, &seam) {
+                Ok(text) => {
+                    eprintln!("surgery: {} rounds, fresh qubits in {fresh:?}", specs.len());
+                    return Ok(text);
+                }
+                Err(e) => errors.push(format!("fresh {fresh:?}: {e}")),
+            }
+        }
+    }
+    errors.dedup();
+    Err(format!(
+        "surgery: no phase and fresh basis works:\n  {}",
+        errors.join("\n  ")
+    )
+    .into())
 }
 
 fn parse_basis(s: &str) -> Result<B, Error> {
@@ -1092,10 +1566,17 @@ fn main() -> Result<(), Error> {
             std::fs::write(out, text)?;
             Ok(())
         }
+        [cmd, top, orient, basis, d, out] if cmd == "surgery" => {
+            let basis = parse_basis(basis)?;
+            let text = surgery(top, orient, basis, d.parse()?)?;
+            std::fs::write(out, text)?;
+            Ok(())
+        }
         _ => Err(concat!(
             "usage: low-gadgets compact-memory <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
             "       low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>\n",
-            "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>"
+            "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
+            "       low-gadgets surgery <x-top|z-top> <h|v> <x|z> <d> <out.stim>"
         )
         .into()),
     }
