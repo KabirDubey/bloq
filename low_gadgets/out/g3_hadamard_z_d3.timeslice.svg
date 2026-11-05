@@ -1,0 +1,714 @@
+<svg viewBox="0 0 1660.98 1660.98"  version="1.1" xmlns="http://www.w3.org/2000/svg">
+<g id="qubit_dots">
+<circle id="qubit_dot:0:0_1:8" cx="80" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:8" cx="80" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:8" cx="80" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:8" cx="125.255" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:8" cx="125.255" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:8" cx="125.255" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:8" cx="170.51" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:8" cx="170.51" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:8" cx="170.51" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:8" cx="215.764" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:8" cx="215.764" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:8" cx="215.764" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:8" cx="261.019" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:8" cx="261.019" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:8" cx="261.019" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:8" cx="306.274" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:8" cx="306.274" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:8" cx="306.274" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:8" cx="80" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:8" cx="80" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:8" cx="80" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:8" cx="125.255" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:8" cx="125.255" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:8" cx="125.255" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:8" cx="170.51" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:8" cx="170.51" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:8" cx="170.51" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:8" cx="215.764" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:8" cx="215.764" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:8" cx="215.764" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:8" cx="261.019" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:8" cx="261.019" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:8" cx="261.019" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:8" cx="306.274" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:8" cx="306.274" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:8" cx="306.274" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:8" cx="80" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:8" cx="80" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:8" cx="80" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:8" cx="125.255" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:8" cx="125.255" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:8" cx="125.255" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:8" cx="170.51" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:8" cx="170.51" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:8" cx="170.51" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:8" cx="215.764" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:8" cx="215.764" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:8" cx="215.764" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:8" cx="261.019" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:8" cx="261.019" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:8" cx="261.019" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:8" cx="306.274" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:8" cx="306.274" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:8" cx="306.274" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:8" cx="80" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:8" cx="80" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:8" cx="80" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:8" cx="125.255" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:8" cx="125.255" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:8" cx="125.255" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:8" cx="170.51" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:8" cx="170.51" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:8" cx="170.51" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:8" cx="215.764" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:8" cx="215.764" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:8" cx="215.764" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:8" cx="261.019" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:8" cx="261.019" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:8" cx="261.019" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:8" cx="306.274" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:8" cx="306.274" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:8" cx="306.274" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:9" cx="504.902" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:9" cx="504.902" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:9" cx="504.902" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:9" cx="550.156" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:9" cx="550.156" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:9" cx="550.156" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:9" cx="595.411" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:9" cx="595.411" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:9" cx="595.411" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:9" cx="640.666" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:9" cx="640.666" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:9" cx="640.666" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:9" cx="685.921" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:9" cx="685.921" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:9" cx="685.921" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:9" cx="731.176" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:9" cx="731.176" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:9" cx="731.176" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:9" cx="504.902" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:9" cx="504.902" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:9" cx="504.902" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:9" cx="550.156" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:9" cx="550.156" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:9" cx="550.156" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:9" cx="595.411" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:9" cx="595.411" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:9" cx="595.411" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:9" cx="640.666" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:9" cx="640.666" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:9" cx="640.666" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:9" cx="685.921" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:9" cx="685.921" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:9" cx="685.921" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:9" cx="731.176" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:9" cx="731.176" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:9" cx="731.176" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:9" cx="504.902" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:9" cx="504.902" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:9" cx="504.902" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:9" cx="550.156" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:9" cx="550.156" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:9" cx="550.156" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:9" cx="595.411" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:9" cx="595.411" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:9" cx="595.411" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:9" cx="640.666" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:9" cx="640.666" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:9" cx="640.666" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:9" cx="685.921" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:9" cx="685.921" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:9" cx="685.921" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:9" cx="731.176" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:9" cx="731.176" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:9" cx="731.176" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:9" cx="504.902" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:9" cx="504.902" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:9" cx="504.902" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:9" cx="550.156" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:9" cx="550.156" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:9" cx="550.156" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:9" cx="595.411" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:9" cx="595.411" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:9" cx="595.411" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:9" cx="640.666" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:9" cx="640.666" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:9" cx="640.666" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:9" cx="685.921" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:9" cx="685.921" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:9" cx="685.921" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:9" cx="731.176" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:9" cx="731.176" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:9" cx="731.176" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:10" cx="929.803" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:10" cx="929.803" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:10" cx="929.803" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:10" cx="975.058" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:10" cx="975.058" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:10" cx="975.058" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:10" cx="1020.31" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:10" cx="1020.31" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:10" cx="1020.31" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:10" cx="1065.57" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:10" cx="1065.57" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:10" cx="1065.57" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:10" cx="1110.82" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:10" cx="1110.82" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:10" cx="1110.82" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:10" cx="1156.08" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:10" cx="1156.08" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:10" cx="1156.08" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:10" cx="929.803" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:10" cx="929.803" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:10" cx="929.803" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:10" cx="975.058" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:10" cx="975.058" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:10" cx="975.058" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:10" cx="1020.31" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:10" cx="1020.31" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:10" cx="1020.31" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:10" cx="1065.57" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:10" cx="1065.57" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:10" cx="1065.57" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:10" cx="1110.82" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:10" cx="1110.82" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:10" cx="1110.82" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:10" cx="1156.08" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:10" cx="1156.08" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:10" cx="1156.08" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:10" cx="929.803" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:10" cx="929.803" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:10" cx="929.803" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:10" cx="975.058" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:10" cx="975.058" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:10" cx="975.058" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:10" cx="1020.31" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:10" cx="1020.31" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:10" cx="1020.31" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:10" cx="1065.57" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:10" cx="1065.57" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:10" cx="1065.57" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:10" cx="1110.82" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:10" cx="1110.82" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:10" cx="1110.82" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:10" cx="1156.08" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:10" cx="1156.08" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:10" cx="1156.08" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:10" cx="929.803" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:10" cx="929.803" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:10" cx="929.803" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:10" cx="975.058" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:10" cx="975.058" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:10" cx="975.058" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:10" cx="1020.31" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:10" cx="1020.31" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:10" cx="1020.31" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:10" cx="1065.57" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:10" cx="1065.57" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:10" cx="1065.57" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:10" cx="1110.82" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:10" cx="1110.82" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:10" cx="1110.82" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:10" cx="1156.08" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:10" cx="1156.08" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:10" cx="1156.08" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:11" cx="1354.7" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:11" cx="1354.7" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:11" cx="1354.7" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:11" cx="1399.96" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:11" cx="1399.96" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:11" cx="1399.96" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:11" cx="1445.21" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:11" cx="1445.21" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:11" cx="1445.21" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:11" cx="1490.47" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:11" cx="1490.47" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:11" cx="1490.47" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:11" cx="1535.72" cy="125.255" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:11" cx="1535.72" cy="215.764" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:11" cx="1535.72" cy="306.274" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:11" cx="1580.98" cy="80" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:11" cx="1580.98" cy="170.51" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:11" cx="1580.98" cy="261.019" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:11" cx="1354.7" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:11" cx="1354.7" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:11" cx="1354.7" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:11" cx="1399.96" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:11" cx="1399.96" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:11" cx="1399.96" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:11" cx="1445.21" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:11" cx="1445.21" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:11" cx="1445.21" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:11" cx="1490.47" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:11" cx="1490.47" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:11" cx="1490.47" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:11" cx="1535.72" cy="550.156" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:11" cx="1535.72" cy="640.666" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:11" cx="1535.72" cy="731.176" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:11" cx="1580.98" cy="504.902" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:11" cx="1580.98" cy="595.411" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:11" cx="1580.98" cy="685.921" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:11" cx="1354.7" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:11" cx="1354.7" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:11" cx="1354.7" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:11" cx="1399.96" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:11" cx="1399.96" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:11" cx="1399.96" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:11" cx="1445.21" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:11" cx="1445.21" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:11" cx="1445.21" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:11" cx="1490.47" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:11" cx="1490.47" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:11" cx="1490.47" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:11" cx="1535.72" cy="975.058" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:11" cx="1535.72" cy="1065.57" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:11" cx="1535.72" cy="1156.08" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:11" cx="1580.98" cy="929.803" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:11" cx="1580.98" cy="1020.31" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:11" cx="1580.98" cy="1110.82" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:0:0_1:11" cx="1354.7" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:1:0_3:11" cx="1354.7" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:2:0_5:11" cx="1354.7" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:3:1_0:11" cx="1399.96" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:4:1_2:11" cx="1399.96" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:5:1_4:11" cx="1399.96" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:6:2_1:11" cx="1445.21" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:7:2_3:11" cx="1445.21" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:8:2_5:11" cx="1445.21" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:9:3_0:11" cx="1490.47" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:10:3_2:11" cx="1490.47" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:11:3_4:11" cx="1490.47" cy="1535.72" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:12:4_1:11" cx="1535.72" cy="1399.96" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:13:4_3:11" cx="1535.72" cy="1490.47" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:14:4_5:11" cx="1535.72" cy="1580.98" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:15:5_0:11" cx="1580.98" cy="1354.7" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:16:5_2:11" cx="1580.98" cy="1445.21" r="2" stroke="none" fill="black"/>
+<circle id="qubit_dot:17:5_4:11" cx="1580.98" cy="1535.72" r="2" stroke="none" fill="black"/>
+</g>
+<path d="M215.764,80 L261.019,125.255 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="215.764" cy="80" r="12" stroke="none" fill="black"/>
+<circle cx="261.019" cy="125.255" r="12" stroke="black" fill="white"/>
+<path d="M249.019,125.255 L273.019,125.255 M261.019,113.255 L261.019,137.255 " stroke="black"/>
+<path d="M125.255,170.51 L170.51,215.764 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="125.255" cy="170.51" r="12" stroke="none" fill="black"/>
+<circle cx="170.51" cy="215.764" r="12" stroke="black" fill="white"/>
+<path d="M158.51,215.764 L182.51,215.764 M170.51,203.764 L170.51,227.764 " stroke="black"/>
+<path d="M170.51,125.255 L215.764,170.51 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="170.51" cy="125.255" r="12" stroke="none" fill="black"/>
+<circle cx="215.764" cy="170.51" r="12" stroke="black" fill="white"/>
+<path d="M203.764,170.51 L227.764,170.51 M215.764,158.51 L215.764,182.51 " stroke="black"/>
+<path d="M80,215.764 L125.255,261.019 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="80" cy="215.764" r="12" stroke="none" fill="black"/>
+<circle cx="125.255" cy="261.019" r="12" stroke="black" fill="white"/>
+<path d="M113.255,261.019 L137.255,261.019 M125.255,249.019 L125.255,273.019 " stroke="black"/>
+<path d="M215.764,261.019 L261.019,306.274 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="215.764" cy="261.019" r="12" stroke="none" fill="black"/>
+<circle cx="261.019" cy="306.274" r="12" stroke="black" fill="white"/>
+<path d="M249.019,306.274 L273.019,306.274 M261.019,294.274 L261.019,318.274 " stroke="black"/>
+<path d="M261.019,215.764 L306.274,261.019 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="261.019" cy="215.764" r="12" stroke="none" fill="black"/>
+<circle cx="306.274" cy="261.019" r="12" stroke="black" fill="white"/>
+<path d="M294.274,261.019 L318.274,261.019 M306.274,249.019 L306.274,273.019 " stroke="black"/>
+<path d="M550.156,80 L595.411,125.255 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="80" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="125.255" r="12" stroke="black" fill="white"/>
+<path d="M583.411,125.255 L607.411,125.255 M595.411,113.255 L595.411,137.255 " stroke="black"/>
+<path d="M504.902,125.255 L550.156,170.51 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="504.902" cy="125.255" r="12" stroke="none" fill="black"/>
+<circle cx="550.156" cy="170.51" r="12" stroke="black" fill="white"/>
+<path d="M538.156,170.51 L562.156,170.51 M550.156,158.51 L550.156,182.51 " stroke="black"/>
+<path d="M640.666,170.51 L685.921,215.764 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="640.666" cy="170.51" r="12" stroke="none" fill="black"/>
+<circle cx="685.921" cy="215.764" r="12" stroke="black" fill="white"/>
+<path d="M673.921,215.764 L697.921,215.764 M685.921,203.764 L685.921,227.764 " stroke="black"/>
+<path d="M685.921,125.255 L731.176,170.51 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="125.255" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="170.51" r="12" stroke="black" fill="white"/>
+<path d="M719.176,170.51 L743.176,170.51 M731.176,158.51 L731.176,182.51 " stroke="black"/>
+<path d="M550.156,261.019 L595.411,306.274 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="261.019" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="306.274" r="12" stroke="black" fill="white"/>
+<path d="M583.411,306.274 L607.411,306.274 M595.411,294.274 L595.411,318.274 " stroke="black"/>
+<path d="M595.411,215.764 L640.666,261.019 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="215.764" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="261.019" r="12" stroke="black" fill="white"/>
+<path d="M628.666,261.019 L652.666,261.019 M640.666,249.019 L640.666,273.019 " stroke="black"/>
+<path d="M975.058,80 L929.803,125.255 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="975.058" cy="80" r="12" stroke="none" fill="black"/>
+<circle cx="929.803" cy="125.255" r="12" stroke="black" fill="white"/>
+<path d="M917.803,125.255 L941.803,125.255 M929.803,113.255 L929.803,137.255 " stroke="black"/>
+<path d="M1020.31,125.255 L1065.57,80 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1020.31" cy="125.255" r="12" stroke="none" fill="black"/>
+<circle cx="1065.57" cy="80" r="12" stroke="black" fill="white"/>
+<path d="M1053.57,80 L1077.57,80 M1065.57,68 L1065.57,92 " stroke="black"/>
+<path d="M1156.08,80 L1110.82,125.255 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1156.08" cy="80" r="12" stroke="none" fill="black"/>
+<circle cx="1110.82" cy="125.255" r="12" stroke="black" fill="white"/>
+<path d="M1098.82,125.255 L1122.82,125.255 M1110.82,113.255 L1110.82,137.255 " stroke="black"/>
+<path d="M975.058,170.51 L929.803,215.764 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="975.058" cy="170.51" r="12" stroke="none" fill="black"/>
+<circle cx="929.803" cy="215.764" r="12" stroke="black" fill="white"/>
+<path d="M917.803,215.764 L941.803,215.764 M929.803,203.764 L929.803,227.764 " stroke="black"/>
+<path d="M1065.57,170.51 L1020.31,215.764 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1065.57" cy="170.51" r="12" stroke="none" fill="black"/>
+<circle cx="1020.31" cy="215.764" r="12" stroke="black" fill="white"/>
+<path d="M1008.31,215.764 L1032.31,215.764 M1020.31,203.764 L1020.31,227.764 " stroke="black"/>
+<path d="M1110.82,215.764 L1156.08,170.51 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1110.82" cy="215.764" r="12" stroke="none" fill="black"/>
+<circle cx="1156.08" cy="170.51" r="12" stroke="black" fill="white"/>
+<path d="M1144.08,170.51 L1168.08,170.51 M1156.08,158.51 L1156.08,182.51 " stroke="black"/>
+<path d="M1020.31,306.274 L1065.57,261.019 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1020.31" cy="306.274" r="12" stroke="none" fill="black"/>
+<circle cx="1065.57" cy="261.019" r="12" stroke="black" fill="white"/>
+<path d="M1053.57,261.019 L1077.57,261.019 M1065.57,249.019 L1065.57,273.019 " stroke="black"/>
+<path d="M1110.82,306.274 L1156.08,261.019 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1110.82" cy="306.274" r="12" stroke="none" fill="black"/>
+<circle cx="1156.08" cy="261.019" r="12" stroke="black" fill="white"/>
+<path d="M1144.08,261.019 L1168.08,261.019 M1156.08,249.019 L1156.08,273.019 " stroke="black"/>
+<rect x="1383.96" y="64" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1399.96" y="80" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1564.98" y="64" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1580.98" y="80" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1338.7" y="199.764" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1354.7" y="215.764" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1474.47" y="154.51" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1490.47" y="170.51" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1474.47" y="64" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1490.47" y="80" fill="white">M</text>
+<rect x="1564.98" y="154.51" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1580.98" y="170.51" fill="white">M</text>
+<rect x="1474.47" y="245.019" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1490.47" y="261.019" fill="white">M</text>
+<rect x="1519.72" y="290.274" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1535.72" y="306.274" fill="white">M</text>
+<rect x="109.255" y="488.902" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="125.255" y="504.902" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="290.274" y="488.902" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="306.274" y="504.902" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="64" y="624.666" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="80" y="640.666" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="199.764" y="579.411" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="215.764" y="595.411" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="199.764" y="488.902" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="215.764" y="504.902" fill="white">R</text>
+<rect x="290.274" y="579.411" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="306.274" y="595.411" fill="white">R</text>
+<rect x="199.764" y="669.921" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="215.764" y="685.921" fill="white">R</text>
+<rect x="245.019" y="715.176" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="261.019" y="731.176" fill="white">R</text>
+<rect x="64" y="715.176" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="80" y="731.176" fill="white">R</text>
+<path d="M550.156,504.902 L504.902,550.156 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="504.902" r="12" stroke="none" fill="black"/>
+<circle cx="504.902" cy="550.156" r="12" stroke="black" fill="white"/>
+<path d="M492.902,550.156 L516.902,550.156 M504.902,538.156 L504.902,562.156 " stroke="black"/>
+<path d="M595.411,550.156 L640.666,504.902 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="550.156" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="504.902" r="12" stroke="black" fill="white"/>
+<path d="M628.666,504.902 L652.666,504.902 M640.666,492.902 L640.666,516.902 " stroke="black"/>
+<path d="M731.176,504.902 L685.921,550.156 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="731.176" cy="504.902" r="12" stroke="none" fill="black"/>
+<circle cx="685.921" cy="550.156" r="12" stroke="black" fill="white"/>
+<path d="M673.921,550.156 L697.921,550.156 M685.921,538.156 L685.921,562.156 " stroke="black"/>
+<path d="M550.156,595.411 L504.902,640.666 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="595.411" r="12" stroke="none" fill="black"/>
+<circle cx="504.902" cy="640.666" r="12" stroke="black" fill="white"/>
+<path d="M492.902,640.666 L516.902,640.666 M504.902,628.666 L504.902,652.666 " stroke="black"/>
+<path d="M640.666,595.411 L595.411,640.666 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="640.666" cy="595.411" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="640.666" r="12" stroke="black" fill="white"/>
+<path d="M583.411,640.666 L607.411,640.666 M595.411,628.666 L595.411,652.666 " stroke="black"/>
+<path d="M685.921,640.666 L731.176,595.411 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="640.666" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="595.411" r="12" stroke="black" fill="white"/>
+<path d="M719.176,595.411 L743.176,595.411 M731.176,583.411 L731.176,607.411 " stroke="black"/>
+<path d="M595.411,731.176 L640.666,685.921 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="731.176" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="685.921" r="12" stroke="black" fill="white"/>
+<path d="M628.666,685.921 L652.666,685.921 M640.666,673.921 L640.666,697.921 " stroke="black"/>
+<path d="M685.921,731.176 L731.176,685.921 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="731.176" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="685.921" r="12" stroke="black" fill="white"/>
+<path d="M719.176,685.921 L743.176,685.921 M731.176,673.921 L731.176,697.921 " stroke="black"/>
+<path d="M975.058,504.902 L1020.31,550.156 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="975.058" cy="504.902" r="12" stroke="none" fill="black"/>
+<circle cx="1020.31" cy="550.156" r="12" stroke="black" fill="white"/>
+<path d="M1008.31,550.156 L1032.31,550.156 M1020.31,538.156 L1020.31,562.156 " stroke="black"/>
+<path d="M929.803,550.156 L975.058,595.411 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="929.803" cy="550.156" r="12" stroke="none" fill="black"/>
+<circle cx="975.058" cy="595.411" r="12" stroke="black" fill="white"/>
+<path d="M963.058,595.411 L987.058,595.411 M975.058,583.411 L975.058,607.411 " stroke="black"/>
+<path d="M1065.57,595.411 L1110.82,640.666 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1065.57" cy="595.411" r="12" stroke="none" fill="black"/>
+<circle cx="1110.82" cy="640.666" r="12" stroke="black" fill="white"/>
+<path d="M1098.82,640.666 L1122.82,640.666 M1110.82,628.666 L1110.82,652.666 " stroke="black"/>
+<path d="M1110.82,550.156 L1156.08,595.411 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1110.82" cy="550.156" r="12" stroke="none" fill="black"/>
+<circle cx="1156.08" cy="595.411" r="12" stroke="black" fill="white"/>
+<path d="M1144.08,595.411 L1168.08,595.411 M1156.08,583.411 L1156.08,607.411 " stroke="black"/>
+<path d="M975.058,685.921 L1020.31,731.176 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="975.058" cy="685.921" r="12" stroke="none" fill="black"/>
+<circle cx="1020.31" cy="731.176" r="12" stroke="black" fill="white"/>
+<path d="M1008.31,731.176 L1032.31,731.176 M1020.31,719.176 L1020.31,743.176 " stroke="black"/>
+<path d="M1020.31,640.666 L1065.57,685.921 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1020.31" cy="640.666" r="12" stroke="none" fill="black"/>
+<circle cx="1065.57" cy="685.921" r="12" stroke="black" fill="white"/>
+<path d="M1053.57,685.921 L1077.57,685.921 M1065.57,673.921 L1065.57,697.921 " stroke="black"/>
+<path d="M1490.47,504.902 L1535.72,550.156 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1490.47" cy="504.902" r="12" stroke="none" fill="black"/>
+<circle cx="1535.72" cy="550.156" r="12" stroke="black" fill="white"/>
+<path d="M1523.72,550.156 L1547.72,550.156 M1535.72,538.156 L1535.72,562.156 " stroke="black"/>
+<path d="M1399.96,595.411 L1445.21,640.666 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1399.96" cy="595.411" r="12" stroke="none" fill="black"/>
+<circle cx="1445.21" cy="640.666" r="12" stroke="black" fill="white"/>
+<path d="M1433.21,640.666 L1457.21,640.666 M1445.21,628.666 L1445.21,652.666 " stroke="black"/>
+<path d="M1445.21,550.156 L1490.47,595.411 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1445.21" cy="550.156" r="12" stroke="none" fill="black"/>
+<circle cx="1490.47" cy="595.411" r="12" stroke="black" fill="white"/>
+<path d="M1478.47,595.411 L1502.47,595.411 M1490.47,583.411 L1490.47,607.411 " stroke="black"/>
+<path d="M1354.7,640.666 L1399.96,685.921 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1354.7" cy="640.666" r="12" stroke="none" fill="black"/>
+<circle cx="1399.96" cy="685.921" r="12" stroke="black" fill="white"/>
+<path d="M1387.96,685.921 L1411.96,685.921 M1399.96,673.921 L1399.96,697.921 " stroke="black"/>
+<path d="M1490.47,685.921 L1535.72,731.176 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1490.47" cy="685.921" r="12" stroke="none" fill="black"/>
+<circle cx="1535.72" cy="731.176" r="12" stroke="black" fill="white"/>
+<path d="M1523.72,731.176 L1547.72,731.176 M1535.72,719.176 L1535.72,743.176 " stroke="black"/>
+<path d="M1535.72,640.666 L1580.98,685.921 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1535.72" cy="640.666" r="12" stroke="none" fill="black"/>
+<circle cx="1580.98" cy="685.921" r="12" stroke="black" fill="white"/>
+<path d="M1568.98,685.921 L1592.98,685.921 M1580.98,673.921 L1580.98,697.921 " stroke="black"/>
+<path d="M80,975.058 L125.255,929.803 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="80" cy="975.058" r="12" stroke="none" fill="black"/>
+<circle cx="125.255" cy="929.803" r="12" stroke="black" fill="white"/>
+<path d="M113.255,929.803 L137.255,929.803 M125.255,917.803 L125.255,941.803 " stroke="black"/>
+<path d="M215.764,1110.82 L170.51,1156.08 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="215.764" cy="1110.82" r="12" stroke="none" fill="black"/>
+<circle cx="170.51" cy="1156.08" r="12" stroke="black" fill="white"/>
+<path d="M158.51,1156.08 L182.51,1156.08 M170.51,1144.08 L170.51,1168.08 " stroke="black"/>
+<path d="M125.255,1110.82 L80,1156.08 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="125.255" cy="1110.82" r="12" stroke="none" fill="black"/>
+<circle cx="80" cy="1156.08" r="12" stroke="black" fill="white"/>
+<path d="M68,1156.08 L92,1156.08 M80,1144.08 L80,1168.08 " stroke="black"/>
+<path d="M550.156,929.803 L504.902,975.058 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="929.803" r="12" stroke="none" fill="black"/>
+<circle cx="504.902" cy="975.058" r="12" stroke="black" fill="white"/>
+<path d="M492.902,975.058 L516.902,975.058 M504.902,963.058 L504.902,987.058 " stroke="black"/>
+<path d="M640.666,929.803 L595.411,975.058 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="640.666" cy="929.803" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="975.058" r="12" stroke="black" fill="white"/>
+<path d="M583.411,975.058 L607.411,975.058 M595.411,963.058 L595.411,987.058 " stroke="black"/>
+<path d="M685.921,975.058 L731.176,929.803 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="975.058" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="929.803" r="12" stroke="black" fill="white"/>
+<path d="M719.176,929.803 L743.176,929.803 M731.176,917.803 L731.176,941.803 " stroke="black"/>
+<path d="M550.156,1020.31 L504.902,1065.57 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="1020.31" r="12" stroke="none" fill="black"/>
+<circle cx="504.902" cy="1065.57" r="12" stroke="black" fill="white"/>
+<path d="M492.902,1065.57 L516.902,1065.57 M504.902,1053.57 L504.902,1077.57 " stroke="black"/>
+<path d="M595.411,1065.57 L640.666,1020.31 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="1065.57" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="1020.31" r="12" stroke="black" fill="white"/>
+<path d="M628.666,1020.31 L652.666,1020.31 M640.666,1008.31 L640.666,1032.31 " stroke="black"/>
+<path d="M731.176,1020.31 L685.921,1065.57 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="731.176" cy="1020.31" r="12" stroke="none" fill="black"/>
+<circle cx="685.921" cy="1065.57" r="12" stroke="black" fill="white"/>
+<path d="M673.921,1065.57 L697.921,1065.57 M685.921,1053.57 L685.921,1077.57 " stroke="black"/>
+<path d="M595.411,1156.08 L640.666,1110.82 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="1156.08" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="1110.82" r="12" stroke="black" fill="white"/>
+<path d="M628.666,1110.82 L652.666,1110.82 M640.666,1098.82 L640.666,1122.82 " stroke="black"/>
+<path d="M685.921,1156.08 L731.176,1110.82 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="1156.08" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="1110.82" r="12" stroke="black" fill="white"/>
+<path d="M719.176,1110.82 L743.176,1110.82 M731.176,1098.82 L731.176,1122.82 " stroke="black"/>
+<path d="M504.902,1156.08 L550.156,1110.82 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="504.902" cy="1156.08" r="12" stroke="none" fill="black"/>
+<circle cx="550.156" cy="1110.82" r="12" stroke="black" fill="white"/>
+<path d="M538.156,1110.82 L562.156,1110.82 M550.156,1098.82 L550.156,1122.82 " stroke="black"/>
+<rect x="959.058" y="913.803" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="975.058" y="929.803" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1049.57" y="913.803" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1065.57" y="929.803" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="959.058" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="975.058" y="1020.31" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1140.08" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1156.08" y="1020.31" fill="white">M<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1140.08" y="913.803" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1156.08" y="929.803" fill="white">M</text>
+<rect x="1049.57" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1065.57" y="1020.31" fill="white">M</text>
+<rect x="1049.57" y="1094.82" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1065.57" y="1110.82" fill="white">M</text>
+<rect x="1140.08" y="1094.82" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1156.08" y="1110.82" fill="white">M</text>
+<rect x="1383.96" y="913.803" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1399.96" y="929.803" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1474.47" y="913.803" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1490.47" y="929.803" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1474.47" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1490.47" y="1020.31" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1383.96" y="1094.82" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1399.96" y="1110.82" fill="white">R<tspan baseline-shift="sub" font-size="16">X</tspan></text>
+<rect x="1383.96" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1399.96" y="1020.31" fill="white">R</text>
+<rect x="1564.98" y="1004.31" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1580.98" y="1020.31" fill="white">R</text>
+<rect x="1474.47" y="1094.82" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1490.47" y="1110.82" fill="white">R</text>
+<rect x="1564.98" y="1094.82" width="32" height="32" stroke="black" fill="black"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1580.98" y="1110.82" fill="white">R</text>
+<rect x="1338.7" y="959.058" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1354.7" y="975.058">H</text>
+<rect x="1429.21" y="959.058" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1445.21" y="975.058">H</text>
+<rect x="1519.72" y="959.058" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1535.72" y="975.058">H</text>
+<rect x="1338.7" y="1049.57" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1354.7" y="1065.57">H</text>
+<rect x="1429.21" y="1049.57" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1445.21" y="1065.57">H</text>
+<rect x="1519.72" y="1049.57" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1535.72" y="1065.57">H</text>
+<rect x="1338.7" y="1140.08" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1354.7" y="1156.08">H</text>
+<rect x="1429.21" y="1140.08" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1445.21" y="1156.08">H</text>
+<rect x="1519.72" y="1140.08" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1535.72" y="1156.08">H</text>
+<path d="M125.255,1354.7 L80,1399.96 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="125.255" cy="1354.7" r="12" stroke="none" fill="black"/>
+<circle cx="80" cy="1399.96" r="12" stroke="black" fill="white"/>
+<path d="M68,1399.96 L92,1399.96 M80,1387.96 L80,1411.96 " stroke="black"/>
+<path d="M80,1490.47 L125.255,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="80" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="125.255" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M113.255,1445.21 L137.255,1445.21 M125.255,1433.21 L125.255,1457.21 " stroke="black"/>
+<path d="M215.764,1445.21 L170.51,1490.47 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="215.764" cy="1445.21" r="12" stroke="none" fill="black"/>
+<circle cx="170.51" cy="1490.47" r="12" stroke="black" fill="white"/>
+<path d="M158.51,1490.47 L182.51,1490.47 M170.51,1478.47 L170.51,1502.47 " stroke="black"/>
+<path d="M261.019,1490.47 L306.274,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="261.019" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="306.274" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M294.274,1445.21 L318.274,1445.21 M306.274,1433.21 L306.274,1457.21 " stroke="black"/>
+<path d="M125.255,1535.72 L80,1580.98 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="125.255" cy="1535.72" r="12" stroke="none" fill="black"/>
+<circle cx="80" cy="1580.98" r="12" stroke="black" fill="white"/>
+<path d="M68,1580.98 L92,1580.98 M80,1568.98 L80,1592.98 " stroke="black"/>
+<path d="M170.51,1580.98 L215.764,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="170.51" cy="1580.98" r="12" stroke="none" fill="black"/>
+<circle cx="215.764" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M203.764,1535.72 L227.764,1535.72 M215.764,1523.72 L215.764,1547.72 " stroke="black"/>
+<path d="M550.156,1354.7 L595.411,1399.96 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="1354.7" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="1399.96" r="12" stroke="black" fill="white"/>
+<path d="M583.411,1399.96 L607.411,1399.96 M595.411,1387.96 L595.411,1411.96 " stroke="black"/>
+<path d="M504.902,1399.96 L550.156,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="504.902" cy="1399.96" r="12" stroke="none" fill="black"/>
+<circle cx="550.156" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M538.156,1445.21 L562.156,1445.21 M550.156,1433.21 L550.156,1457.21 " stroke="black"/>
+<path d="M640.666,1445.21 L685.921,1490.47 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="640.666" cy="1445.21" r="12" stroke="none" fill="black"/>
+<circle cx="685.921" cy="1490.47" r="12" stroke="black" fill="white"/>
+<path d="M673.921,1490.47 L697.921,1490.47 M685.921,1478.47 L685.921,1502.47 " stroke="black"/>
+<path d="M685.921,1399.96 L731.176,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="685.921" cy="1399.96" r="12" stroke="none" fill="black"/>
+<circle cx="731.176" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M719.176,1445.21 L743.176,1445.21 M731.176,1433.21 L731.176,1457.21 " stroke="black"/>
+<path d="M550.156,1535.72 L595.411,1580.98 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="550.156" cy="1535.72" r="12" stroke="none" fill="black"/>
+<circle cx="595.411" cy="1580.98" r="12" stroke="black" fill="white"/>
+<path d="M583.411,1580.98 L607.411,1580.98 M595.411,1568.98 L595.411,1592.98 " stroke="black"/>
+<path d="M595.411,1490.47 L640.666,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="595.411" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="640.666" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M628.666,1535.72 L652.666,1535.72 M640.666,1523.72 L640.666,1547.72 " stroke="black"/>
+<path d="M1065.57,1354.7 L1110.82,1399.96 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1065.57" cy="1354.7" r="12" stroke="none" fill="black"/>
+<circle cx="1110.82" cy="1399.96" r="12" stroke="black" fill="white"/>
+<path d="M1098.82,1399.96 L1122.82,1399.96 M1110.82,1387.96 L1110.82,1411.96 " stroke="black"/>
+<path d="M975.058,1445.21 L1020.31,1490.47 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="975.058" cy="1445.21" r="12" stroke="none" fill="black"/>
+<circle cx="1020.31" cy="1490.47" r="12" stroke="black" fill="white"/>
+<path d="M1008.31,1490.47 L1032.31,1490.47 M1020.31,1478.47 L1020.31,1502.47 " stroke="black"/>
+<path d="M1020.31,1399.96 L1065.57,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1020.31" cy="1399.96" r="12" stroke="none" fill="black"/>
+<circle cx="1065.57" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M1053.57,1445.21 L1077.57,1445.21 M1065.57,1433.21 L1065.57,1457.21 " stroke="black"/>
+<path d="M929.803,1490.47 L975.058,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="929.803" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="975.058" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M963.058,1535.72 L987.058,1535.72 M975.058,1523.72 L975.058,1547.72 " stroke="black"/>
+<path d="M1065.57,1535.72 L1110.82,1580.98 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1065.57" cy="1535.72" r="12" stroke="none" fill="black"/>
+<circle cx="1110.82" cy="1580.98" r="12" stroke="black" fill="white"/>
+<path d="M1098.82,1580.98 L1122.82,1580.98 M1110.82,1568.98 L1110.82,1592.98 " stroke="black"/>
+<path d="M1110.82,1490.47 L1156.08,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1110.82" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="1156.08" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M1144.08,1535.72 L1168.08,1535.72 M1156.08,1523.72 L1156.08,1547.72 " stroke="black"/>
+<path d="M1490.47,1354.7 L1445.21,1399.96 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1490.47" cy="1354.7" r="12" stroke="none" fill="black"/>
+<circle cx="1445.21" cy="1399.96" r="12" stroke="black" fill="white"/>
+<path d="M1433.21,1399.96 L1457.21,1399.96 M1445.21,1387.96 L1445.21,1411.96 " stroke="black"/>
+<path d="M1399.96,1445.21 L1354.7,1490.47 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1399.96" cy="1445.21" r="12" stroke="none" fill="black"/>
+<circle cx="1354.7" cy="1490.47" r="12" stroke="black" fill="white"/>
+<path d="M1342.7,1490.47 L1366.7,1490.47 M1354.7,1478.47 L1354.7,1502.47 " stroke="black"/>
+<path d="M1445.21,1490.47 L1490.47,1445.21 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1445.21" cy="1490.47" r="12" stroke="none" fill="black"/>
+<circle cx="1490.47" cy="1445.21" r="12" stroke="black" fill="white"/>
+<path d="M1478.47,1445.21 L1502.47,1445.21 M1490.47,1433.21 L1490.47,1457.21 " stroke="black"/>
+<path d="M1354.7,1580.98 L1399.96,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1354.7" cy="1580.98" r="12" stroke="none" fill="black"/>
+<circle cx="1399.96" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M1387.96,1535.72 L1411.96,1535.72 M1399.96,1523.72 L1399.96,1547.72 " stroke="black"/>
+<path d="M1490.47,1535.72 L1445.21,1580.98 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1490.47" cy="1535.72" r="12" stroke="none" fill="black"/>
+<circle cx="1445.21" cy="1580.98" r="12" stroke="black" fill="white"/>
+<path d="M1433.21,1580.98 L1457.21,1580.98 M1445.21,1568.98 L1445.21,1592.98 " stroke="black"/>
+<path d="M1535.72,1580.98 L1580.98,1535.72 " fill="none" stroke="black" stroke-width="5"/>
+<circle cx="1535.72" cy="1580.98" r="12" stroke="none" fill="black"/>
+<circle cx="1580.98" cy="1535.72" r="12" stroke="black" fill="white"/>
+<path d="M1568.98,1535.72 L1592.98,1535.72 M1580.98,1523.72 L1580.98,1547.72 " stroke="black"/>
+<g id="tick_borders">
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="193.137" y="-380.274">Tick 8</text>
+<rect id="tick_border:0:0_0:8" x="0" y="0" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="193.137" y="-805.176">Tick 9</text>
+<rect id="tick_border:1:0_1:9" x="424.902" y="0" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="193.137" y="-1230.08">Tick 10</text>
+<rect id="tick_border:2:0_2:10" x="849.803" y="0" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="193.137" y="-1654.98">Tick 11</text>
+<rect id="tick_border:3:0_3:11" x="1274.7" y="0" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="618.039" y="-380.274">Tick 12</text>
+<rect id="tick_border:4:1_0:12" x="0" y="424.902" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="618.039" y="-805.176">Tick 13</text>
+<rect id="tick_border:5:1_1:13" x="424.902" y="424.902" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="618.039" y="-1230.08">Tick 14</text>
+<rect id="tick_border:6:1_2:14" x="849.803" y="424.902" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="618.039" y="-1654.98">Tick 15</text>
+<rect id="tick_border:7:1_3:15" x="1274.7" y="424.902" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1042.94" y="-380.274">Tick 16</text>
+<rect id="tick_border:8:2_0:16" x="0" y="849.803" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1042.94" y="-805.176">Tick 17</text>
+<rect id="tick_border:9:2_1:17" x="424.902" y="849.803" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1042.94" y="-1230.08">Tick 18</text>
+<rect id="tick_border:10:2_2:18" x="849.803" y="849.803" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1042.94" y="-1654.98">Tick 19</text>
+<rect id="tick_border:11:2_3:19" x="1274.7" y="849.803" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1467.84" y="-380.274">Tick 20</text>
+<rect id="tick_border:12:3_0:20" x="0" y="1274.7" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1467.84" y="-805.176">Tick 21</text>
+<rect id="tick_border:13:3_1:21" x="424.902" y="1274.7" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1467.84" y="-1230.08">Tick 22</text>
+<rect id="tick_border:14:3_2:22" x="849.803" y="1274.7" width="386.274" height="386.274" stroke="black" fill="none"/>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="serif" font-size="18" transform="rotate(90)" x="1467.84" y="-1654.98">Tick 23</text>
+<rect id="tick_border:15:3_3:23" x="1274.7" y="1274.7" width="386.274" height="386.274" stroke="black" fill="none"/>
+</g>
+</svg>

@@ -42,3 +42,18 @@ for name in g1_memory_xtop_z g1_memory_xtop_x g2_memory_ztop_z g2_memory_ztop_x;
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done
+
+# G3: transversal Hadamard (Fig. 7): d Z-top rounds (the last with the square end cycle), H, d X-top rounds.
+for basis in z x; do
+  name=g3_hadamard_$basis
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    "$gen" hadamard "$basis" "$d" "$d" "$d" "$out.stim"
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((2 * d)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done

@@ -1,0 +1,41 @@
+{
+ "circuit": "out/g3_hadamard_z_d5.stim",
+ "d": 5,
+ "expect": 5,
+ "p": 0.001,
+ "qubits": 50,
+ "ticks": 61,
+ "detectors": 240,
+ "observables": 1,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 5,
+  "per_observable": [
+   5
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 526404,
+  "errors": 523,
+  "per_shot": 0.0009935334837881172,
+  "per_shot_ci": [
+   0.0008407420916254436,
+   0.0011637829499775837
+  ],
+  "rounds": 10,
+  "per_round": 9.939779624490441e-05,
+  "per_round_ci": [
+   8.410603423669727e-05,
+   0.00011643928754179189
+  ],
+  "seconds": 0.9663945037173107
+ },
+ "pass": true
+}
