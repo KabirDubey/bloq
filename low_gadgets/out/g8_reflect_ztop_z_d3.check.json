@@ -1,0 +1,41 @@
+{
+ "circuit": "out/g8_reflect_ztop_z_d3.stim",
+ "d": 3,
+ "expect": 3,
+ "p": 0.001,
+ "qubits": 17,
+ "ticks": 36,
+ "detectors": 48,
+ "observables": 1,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 3,
+  "per_observable": [
+   3
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 79394,
+  "errors": 329,
+  "per_shot": 0.004143889966496209,
+  "per_shot_ci": [
+   0.0033530241579968257,
+   0.0050497518704184195
+  ],
+  "rounds": 6,
+  "per_round": 0.0006918438442520269,
+  "per_round_ci": [
+   0.0005596197112694989,
+   0.0008434016289912138
+  ],
+  "seconds": 0.04980883898679167
+ },
+ "pass": true
+}

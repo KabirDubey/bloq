@@ -124,3 +124,24 @@ for basis in z; do
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done
+
+# G8: Fig. 54, the prior-art Z-top patch in a 2(d+1)^2 box (alternating, 2d rounds); and the Z-top patch
+# that idles as an X-top mirrored along the '\' diagonal (Sec. 1.1.1): 1 G_Z round, a mid-cycle switch,
+# 2d - 4 mirrored X-top rounds, a switch back and 1 G_Z round (A23 to A25).
+for name in g8_memory_ztopbig_z g8_memory_ztopbig_x g8_reflect_ztop_z g8_reflect_ztop_x; do
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  basis=${name##*_}
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    if [[ $name == g8_memory_* ]]; then
+      "$gen" compact-memory z-top-big "$basis" "$d" $((2 * d)) "$out.stim"
+    else
+      "$gen" reflect-memory "$basis" "$d" $((2 * d)) "$out.stim" 2> /dev/null
+    fi
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((2 * d)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done

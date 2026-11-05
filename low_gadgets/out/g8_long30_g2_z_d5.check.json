@@ -1,0 +1,41 @@
+{
+ "circuit": "long_g2_z.stim",
+ "d": 5,
+ "expect": 5,
+ "p": 0.001,
+ "qubits": 49,
+ "ticks": 180,
+ "detectors": 720,
+ "observables": 1,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 5,
+  "per_observable": [
+   5
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 731204,
+  "errors": 2551,
+  "per_shot": 0.0034887664728311114,
+  "per_shot_ci": [
+   0.0032386994600685994,
+   0.003751347093287236
+  ],
+  "rounds": 30,
+  "per_round": 0.00011648876166459043,
+  "per_round_ci": [
+   0.00010812600057941157,
+   0.00012527218753510816
+  ],
+  "seconds": 5.632672033738345
+ },
+ "pass": true
+}

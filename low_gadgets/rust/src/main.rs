@@ -178,6 +178,38 @@ impl RoundSpec {
             measures: self.resets.clone(),
         }
     }
+    /// The round mirrored along the `\` diagonal: (x, y) -> (y, x), bases and gate roles kept.
+    fn reflected(&self) -> Self {
+        let r = |q: IVec2| IVec2::new(q.y, q.x);
+        let mut qubits: Vec<IVec2> = self.qubits.iter().map(|&q| r(q)).collect();
+        qubits.sort_by_key(|q| (q.y, q.x));
+        Self {
+            qubits,
+            resets: self.resets.iter().map(|&(q, b)| (r(q), b)).collect(),
+            h_first: self.h_first.iter().map(|&q| r(q)).collect(),
+            layers: (self.layers.iter())
+                .map(|l| l.iter().map(|&(c, t)| (r(c), r(t))).collect())
+                .collect(),
+            measures: self.measures.iter().map(|&(q, b)| (r(q), b)).collect(),
+        }
+    }
+    /// The first two CX layers of `self` (with its resets) followed by the last two of `other`
+    /// (with its measurements): a round that changes gate sequence at the mid cycle. Both rounds
+    /// must use the same qubits.
+    fn then_at_mid(&self, other: &Self) -> Result<Self, Error> {
+        let a: HashSet<IVec2> = self.qubits.iter().copied().collect();
+        let b: HashSet<IVec2> = other.qubits.iter().copied().collect();
+        if a != b || self.layers.len() != 4 || other.layers.len() != 4 {
+            return Err("mid-cycle switch: the rounds differ in qubits or depth".into());
+        }
+        Ok(Self {
+            qubits: self.qubits.clone(),
+            resets: self.resets.clone(),
+            h_first: self.h_first.clone(),
+            layers: [&self.layers[..2], &other.layers[2..]].concat(),
+            measures: other.measures.clone(),
+        })
+    }
     /// The round moved by `o`.
     fn shifted(&self, o: IVec2) -> Self {
         Self {
@@ -371,6 +403,74 @@ fn g_z_rect(w: i32, h: i32) -> Result<RoundSpec, Error> {
         let mut used = HashSet::new();
         if !layer.iter().all(|&(c, t)| used.insert(c) && used.insert(t)) {
             return Err(format!("G_Z: a qubit is used twice in CX layer {k}").into());
+        }
+    }
+    Ok(RoundSpec {
+        qubits,
+        resets,
+        h_first: Vec::new(),
+        layers,
+        measures,
+    })
+}
+
+/// The prior-art Z-top round of Fig. 54 (arXiv:2605.30455, after Yuga2026NoHook) for any odd d,
+/// in a (d+1) x (d+1) measure grid: data qubits at (odd, odd) in 1..2d, measure qubits at
+/// (even, even) in 0..=2d except the bottom-left corner (0, 2d). Every measure qubit resets and
+/// measures in place, and runs the same four steps, cut to the data qubits that exist; the step
+/// directions and the reset and measure bases depend only on the checkerboard parity
+/// ((x + y) / 2) % 2, with the left column (X) and bottom row (Z) as exceptions. Read off the
+/// d = 5 figure's vector data: at d = 5 this gives its 100 CX gates, 35 resets and 35 measurements.
+fn g_z_big(d: i32) -> Result<RoundSpec, Error> {
+    let n = 2 * d;
+    let data: Vec<IVec2> = (0..d)
+        .flat_map(|j| (0..d).map(move |i| IVec2::new(2 * i + 1, 2 * j + 1)))
+        .collect();
+    let exists: HashSet<IVec2> = data.iter().copied().collect();
+    let mut qubits = data.clone();
+    let mut layers = vec![Vec::new(); 4];
+    let mut resets = Vec::new();
+    let mut measures = Vec::new();
+    for y in (0..=n).step_by(2) {
+        for x in (0..=n).step_by(2) {
+            let m = IVec2::new(x, y);
+            if x == 0 && y == n {
+                continue;
+            }
+            qubits.push(m);
+            let odd = (x + y) / 2 % 2 == 1;
+            let (r, me) = if x == 0 {
+                (B::X, B::X)
+            } else if y == n {
+                (B::Z, B::Z)
+            } else if odd {
+                (B::X, B::Z)
+            } else {
+                (B::Z, B::X)
+            };
+            resets.push((m, r));
+            measures.push((m, me));
+            // (tick, offset, measure qubit controls)
+            let se = IVec2::new(1, 1);
+            let steps = [
+                (0, SW, odd),
+                (if odd { 1 } else { 2 }, se, true),
+                (if odd { 2 } else { 1 }, NW, false),
+                (3, SW, !odd),
+            ];
+            for (tick, o, ctrl) in steps {
+                let q = m + o;
+                if exists.contains(&q) {
+                    layers[tick].push(if ctrl { (m, q) } else { (q, m) });
+                }
+            }
+        }
+    }
+    qubits.sort_by_key(|q| (q.y, q.x));
+    for (k, layer) in layers.iter().enumerate() {
+        let mut used = HashSet::new();
+        if !layer.iter().all(|&(c, t)| used.insert(c) && used.insert(t)) {
+            return Err(format!("big Z-top: a qubit is used twice in CX layer {k}").into());
         }
     }
     Ok(RoundSpec {
@@ -892,13 +992,14 @@ fn orientation(top: &str, basis: B, d: i32) -> Result<(RoundSpec, Logical), Erro
             RoundSpec::from_measure_qubits(data, &meas)?
         }
         "z-top" => g_z_round(d)?,
-        other => return Err(format!("{other}: want x-top or z-top").into()),
+        "z-top-big" => g_z_big(d)?,
+        other => return Err(format!("{other}: want x-top, z-top or z-top-big").into()),
     };
     let logical: Logical = first
         .data_in()
         .iter()
         .filter(|q| match (top, basis) {
-            ("x-top", B::X) | ("z-top", B::Z) => q.x <= 1,
+            ("x-top", B::X) | ("z-top" | "z-top-big", B::Z) => q.x <= 1,
             _ => q.y == 1,
         })
         .map(|q| ((q.x, q.y), basis))
@@ -1267,6 +1368,55 @@ fn compact_memory(top: &str, basis: B, d: i32, rounds: usize) -> Result<String, 
         })
         .collect();
     run_rounds(&specs, logical, basis, basis)
+}
+
+/// Z-top memory that idles as a reflected X-top (arXiv:2605.30455, Sec. 1.1.1, "Memory"): one
+/// G_Z round, then at the next mid cycle the X-top sequence mirrored along the `\` diagonal, which
+/// alternates for `rounds - 4` rounds, then back to G_Z at a mid cycle and one last Z-top round.
+/// The four ways to pair the halves (G or G^-1 on each side of each switch) are tried in turn and
+/// the first that gives a valid circuit is kept (assumption A24 in the log).
+fn reflect_memory(basis: B, d: i32, rounds: usize) -> Result<String, Error> {
+    if rounds < 5 {
+        return Err("need at least 5 rounds".into());
+    }
+    let (gz, logical) = orientation("z-top", basis, d)?;
+    let gz_inv = gz.inverse();
+    let (gx, _) = orientation("x-top", basis, d)?;
+    let gx = gx.reflected();
+    let gx_inv = gx.inverse();
+    let mut last = None;
+    for (enter, leave) in [(0, 0), (1, 0), (0, 1), (1, 1)] {
+        // Round 0 is G_Z, so round 1 starts as G_Z^-1.
+        let (x_in, x_alt) = if enter == 0 {
+            (&gx, &gx_inv)
+        } else {
+            (&gx_inv, &gx)
+        };
+        let mut specs = vec![gz.clone(), gz_inv.then_at_mid(x_in)?];
+        for k in 0..rounds - 4 {
+            specs.push(if k % 2 == 0 { x_alt } else { x_in }.clone());
+        }
+        // The X-top round that would come next, and the Z-top pair after the switch.
+        let x_next = if (rounds - 4) % 2 == 0 { x_alt } else { x_in };
+        let (z_out, z_last) = if leave == 0 {
+            (&gz, &gz_inv)
+        } else {
+            (&gz_inv, &gz)
+        };
+        specs.push(x_next.then_at_mid(z_out)?);
+        specs.push(z_last.clone());
+        match run_rounds(&specs, logical.clone(), basis, basis) {
+            Ok(text) => {
+                eprintln!("reflect: enter {enter} leave {leave}");
+                return Ok(text);
+            }
+            Err(e) => {
+                eprintln!("reflect: enter {enter} leave {leave}: {e}");
+                last = Some(e);
+            }
+        }
+    }
+    Err(last.unwrap_or_else(|| "no pairing works".into()))
 }
 
 /// G_Z with its moved measurements put back in place: each one becomes the tick-4 CX followed by a
@@ -2152,6 +2302,12 @@ fn main() -> Result<(), Error> {
             std::fs::write(out, text)?;
             Ok(())
         }
+        [cmd, basis, d, rounds, out] if cmd == "reflect-memory" => {
+            let basis = parse_basis(basis)?;
+            let text = reflect_memory(basis, d.parse()?, rounds.parse()?)?;
+            std::fs::write(out, text)?;
+            Ok(())
+        }
         [cmd, basis, d, before, after, out] if cmd == "hadamard" => {
             let basis = parse_basis(basis)?;
             let text = hadamard(basis, d.parse()?, before.parse()?, after.parse()?)?;
@@ -2183,7 +2339,8 @@ fn main() -> Result<(), Error> {
             Ok(())
         }
         _ => Err(concat!(
-            "usage: low-gadgets compact-memory <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
+            "usage: low-gadgets compact-memory <x-top|z-top|z-top-big> <x|z> <d> <rounds> <out.stim>\n",
+            "       low-gadgets reflect-memory <x|z> <d> <rounds> <out.stim>\n",
             "       low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>\n",
             "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
             "       low-gadgets surgery <x-top|z-top> <h|v> <x|z> <d> <out.stim>\n",
