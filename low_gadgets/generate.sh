@@ -57,3 +57,19 @@ for basis in z x; do
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done
+
+# G4: patch walking (Fig. 48), one lattice step right per 2 rounds; 2d rounds, so d steps.
+for name in g4_walking_xtop_z g4_walking_xtop_x g4_walking_ztop_z g4_walking_ztop_x; do
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  basis=${name##*_}
+  top=x-top; [[ $name == *ztop* ]] && top=z-top
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    "$gen" walking "$top" "$basis" "$d" $((2 * d)) "$out.stim"
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((2 * d)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done

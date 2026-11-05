@@ -1,0 +1,41 @@
+{
+ "circuit": "out/g4_walking_xtop_z_d5.stim",
+ "d": 5,
+ "expect": 5,
+ "p": 0.001,
+ "qubits": 95,
+ "ticks": 70,
+ "detectors": 246,
+ "observables": 1,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 5,
+  "per_observable": [
+   5
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 154692,
+  "errors": 258,
+  "per_shot": 0.0016678302691800482,
+  "per_shot_ci": [
+   0.0013113153879967935,
+   0.0020836888785457554
+  ],
+  "rounds": 10,
+  "per_round": 0.00016690833390042847,
+  "per_round_ci": [
+   0.00013120898278673465,
+   0.00020856452525108704
+  ],
+  "seconds": 0.6424346714629792
+ },
+ "pass": true
+}

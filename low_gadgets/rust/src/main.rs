@@ -9,7 +9,10 @@
 //!
 //! Usage: `low-gadgets compact-memory <x-top|z-top> <x|z> <d> <rounds> <out.stim>`
 //! (x-top: Fig. 5 left and (c); z-top: Fig. 5 right and (d)), and
-//! `low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>` (Fig. 7).
+//! `low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>` (Fig. 7), and
+//! `low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>` (Fig. 48; one step per 2 rounds).
+
+mod walk_template;
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
@@ -343,6 +346,95 @@ impl Pauli2 {
     }
 }
 
+/// The Pauli bits of `p` that a qubit in `allowed` would not accept (Y on any other qubit).
+fn wrong_bits(p: &Pauli2, allowed: &HashMap<IVec2, B>) -> std::collections::BTreeSet<(i32, i32, bool)> {
+    p.0.iter()
+        .flat_map(|(&(x, y), &(px, pz))| {
+            let bad = match allowed.get(&IVec2::new(x, y)) {
+                Some(B::Z) => [px, false],
+                Some(B::X) => [false, pz],
+                None => [px && pz, false],
+            };
+            [(x, y, false), (x, y, true)]
+                .into_iter()
+                .zip(bad)
+                .filter(|&(_, b)| b)
+                .map(|(k, _)| k)
+        })
+        .collect()
+}
+
+/// `target` times the product of `items` that cancels its disallowed part, if one exists.
+fn fix_by(target: Pauli2, items: &[Pauli2], allowed: &HashMap<IVec2, B>) -> Option<Pauli2> {
+    let mut pivots: Vec<(std::collections::BTreeSet<(i32, i32, bool)>, Pauli2)> = Vec::new();
+    let reduce = |mut w: std::collections::BTreeSet<(i32, i32, bool)>,
+                  mut p: Pauli2,
+                  pivots: &[(std::collections::BTreeSet<(i32, i32, bool)>, Pauli2)]| {
+        while let Some(&lead) = w.iter().next() {
+            let Some(pv) = pivots.iter().find(|pv| pv.0.iter().next() == Some(&lead)) else {
+                break;
+            };
+            w = w.symmetric_difference(&pv.0).copied().collect();
+            p = p.times(&pv.1);
+        }
+        (w, p)
+    };
+    for it in items {
+        let (w, p) = reduce(wrong_bits(it, allowed), it.clone(), &pivots);
+        if !w.is_empty() {
+            pivots.push((w, p));
+        }
+    }
+    let (w, p) = reduce(wrong_bits(&target, allowed), target, &pivots);
+    w.is_empty().then_some(p)
+}
+
+/// The products of `items` that carry only `allowed` Paulis on the qubits `allowed` names: every
+/// item that does so alone, plus a basis of the products of the others found by GF(2) elimination
+/// on their disallowed parts. Walking corners (Fig. 48) measure some checks only as such products.
+fn deterministic(
+    items: Vec<(Vec<usize>, Pauli2)>,
+    allowed: &HashMap<IVec2, B>,
+) -> Vec<(Vec<usize>, Pauli2)> {
+    let wrong = |p: &Pauli2| wrong_bits(p, allowed);
+    let mut out = Vec::new();
+    let mut pivots: Vec<(std::collections::BTreeSet<(i32, i32, bool)>, Vec<usize>, Pauli2)> = Vec::new();
+    for (idx, p) in items {
+        let mut cur = (wrong(&p), idx, p);
+        loop {
+            let Some(&lead) = cur.0.iter().next() else {
+                cur.1.sort_unstable();
+                out.push((cur.1, cur.2));
+                break;
+            };
+            match pivots.iter().find(|pv| pv.0.iter().next() == Some(&lead)) {
+                Some(pv) => {
+                    cur.0 = cur.0.symmetric_difference(&pv.0).copied().collect();
+                    let mut ids = cur.1.clone();
+                    xor_extend_usize(&mut ids, &pv.1);
+                    cur.1 = ids;
+                    cur.2 = cur.2.times(&pv.2);
+                }
+                None => {
+                    pivots.push(cur);
+                    break;
+                }
+            }
+        }
+    }
+    out
+}
+
+fn xor_extend_usize(a: &mut Vec<usize>, b: &[usize]) {
+    for &x in b {
+        if let Some(i) = a.iter().position(|&y| y == x) {
+            a.swap_remove(i);
+        } else {
+            a.push(x);
+        }
+    }
+}
+
 /// The data and measure parts of a propagated product. Errors if a measure qubit carries a Pauli
 /// that is not `allowed` there (it would not be deterministic) or a data qubit carries Y.
 fn split(p: &Pauli2, allowed: &HashMap<IVec2, B>) -> Result<(Logical, Vec<IVec2>), Error> {
@@ -488,9 +580,15 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
 
     let mut flows = Vec::new();
     let mut fixed = Vec::new();
-    for &(q, b) in &spec.measures {
-        // Backward: what this measurement reads off the data at the start of the round.
-        let (s_in, _) = split(&propagate(Pauli2::single(q, b), spec, true), &reset_basis)?;
+    let back: Vec<(Vec<usize>, Pauli2)> = spec
+        .measures
+        .iter()
+        .enumerate()
+        .map(|(i, &(q, b))| (vec![i], propagate(Pauli2::single(q, b), spec, true)))
+        .collect();
+    for (idx, p) in deterministic(back, &reset_basis) {
+        // Backward: what these measurements read off the data at the start of the round.
+        let (s_in, _) = split(&p, &reset_basis)?;
         let flow = if !s_in.is_empty() && ends.init.is_none() {
             Flow::new(pauli_map(&s_in), PauliMap::empty())
         } else if all_in(&s_in, ends.init) {
@@ -498,12 +596,20 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
         } else {
             continue;
         };
-        flows.push(flow.with_measurements([id_of[&q]]).with_center(q));
+        let ms: Vec<u32> = idx.iter().map(|&i| ids[i]).collect();
+        flows.push(flow.with_measurements(ms).with_center(spec.measures[idx[0]].0));
     }
-    // Forward: what each reset prepares on the data at the end of the round.
+    // Forward: what each reset (or product of resets) prepares on the data at the end of the round.
+    let fwd: Vec<(Vec<usize>, Pauli2)> = spec
+        .resets
+        .iter()
+        .enumerate()
+        .map(|(i, &(q, b))| (vec![i], propagate(Pauli2::single(q, b), spec, false)))
+        .collect();
     let mut outs = Vec::new();
-    for &(q, b) in &spec.resets {
-        let (s_out, via) = split(&propagate(Pauli2::single(q, b), spec, false), &meas_basis)?;
+    for (idx, p) in deterministic(fwd, &meas_basis) {
+        let q = spec.resets[idx[0]].0;
+        let (s_out, via) = split(&p, &meas_basis)?;
         let ms: Vec<u32> = via.iter().map(|v| id_of[v]).collect();
         if let [(&k, &pb)] = s_out.iter().collect::<Vec<_>>()[..] {
             fixed.push((k, pb, ms.clone()));
@@ -544,7 +650,15 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
     for (&(x, y), &b) in logical_in {
         p = p.times(&Pauli2::single(IVec2::new(x, y), b));
     }
-    let (mut logical_out, via) = split(&propagate(p, spec, false), &meas_basis)?;
+    // At a walking corner (Fig. 48) the logical may need a product of resets to stay deterministic.
+    let resets: Vec<Pauli2> = spec
+        .resets
+        .iter()
+        .map(|&(q, b)| propagate(Pauli2::single(q, b), spec, false))
+        .collect();
+    let p = propagate(p, spec, false);
+    let p = fix_by(p.clone(), &resets, &meas_basis).unwrap_or(p);
+    let (mut logical_out, via) = split(&p, &meas_basis)?;
     let mut ms: Vec<u32> = via.iter().map(|v| id_of[v]).collect();
     if ends.readout.is_none() {
         reduce(&mut logical_out, &mut ms);
@@ -788,6 +902,167 @@ fn hadamard(basis: B, d: i32, before: usize, after: usize) -> Result<String, Err
     run_rounds(&specs, logical, basis, flip)
 }
 
+/// Fold one doubled coordinate (a qubit or a gate centre, times 2) of a distance-d walk onto the
+/// d = 5 template of Fig. 48. The half nearer the low edge keeps its distance to that edge, the
+/// other half its distance to the high edge (2d); the bulk repeats every 4 (the X/Z checkerboard),
+/// so the shift is always a multiple of 4 and keeps every qubit's role.
+fn fold(c2: i32, d: i32) -> i32 {
+    if c2 <= 2 * d {
+        let mut c = c2;
+        while c > 12 {
+            c -= 8;
+        }
+        c
+    } else {
+        let mut c = c2 - 2 * (2 * d - 10);
+        while c < 8 {
+            c += 8;
+        }
+        c
+    }
+}
+
+/// The two rounds of one walking step (Fig. 48, arXiv:2605.30455) at distance d, shifted right by
+/// `step` lattice steps. Each round is read from the d = 5 template (ticks 0-5 and 6-11) by
+/// folding every qubit and gate onto it. A CXSwap(c, t) becomes CX(t, c) then CX(c, t)
+/// (stim's decomposition); the CX(t, c) goes into the previous CX layer when its qubits are free
+/// there, otherwise into one extra layer (assumption A8 in the log).
+fn walk_rounds(top: &str, d: i32, step: i32) -> Result<[RoundSpec; 2], Error> {
+    let template = match top {
+        "x-top" => walk_template::X_WALK,
+        "z-top" => walk_template::Z_WALK,
+        other => return Err(format!("{other}: want x-top or z-top").into()),
+    };
+    let basis = |c: char| if c == 'X' { B::X } else { B::Z };
+    let shift = IVec2::new(2 * step, 0);
+    let pos = |x: i32, y: i32| (fold(2 * x, d) / 2, fold(2 * y, d) / 2);
+    let build = |ticks: &[walk_template::Tick]| -> Result<RoundSpec, Error> {
+        let singles = |pick: &dyn Fn(&walk_template::Tick) -> &[((i32, i32), char)]| {
+            let table: HashMap<(i32, i32), char> = pick(&ticks[0])
+                .iter()
+                .chain(pick(&ticks[5]))
+                .copied()
+                .collect();
+            let mut out = Vec::new();
+            for y in 0..=2 * d {
+                for x in 0..=2 * d + 1 {
+                    if let Some(&b) = table.get(&pos(x, y)) {
+                        out.push((IVec2::new(x, y) + shift, basis(b)));
+                    }
+                }
+            }
+            out
+        };
+        let resets = singles(&|t| t.resets);
+        let measures = singles(&|t| t.measures);
+        let mut layers: Vec<Vec<(IVec2, IVec2)>> = Vec::new();
+        let mut swaps: Vec<Vec<(IVec2, IVec2)>> = Vec::new();
+        for tick in &ticks[1..5] {
+            // Key: doubled centre and direction control -> target.
+            let table: HashMap<((i32, i32), (i32, i32)), bool> = tick
+                .gates
+                .iter()
+                .map(|&(s, c, t)| (((c.0 + t.0, c.1 + t.1), (t.0 - c.0, t.1 - c.1)), s))
+                .collect();
+            let (mut layer, mut swap) = (Vec::new(), Vec::new());
+            for y in 0..=2 * d {
+                for x in 0..=2 * d + 1 {
+                    for dir in [(1, 1), (1, -1), (-1, 1), (-1, -1)] {
+                        let centre = (fold(2 * x + dir.0, d), fold(2 * y + dir.1, d));
+                        if let Some(&s) = table.get(&(centre, dir)) {
+                            let c = IVec2::new(x, y) + shift;
+                            let t = c + IVec2::new(dir.0, dir.1);
+                            layer.push((c, t));
+                            if s {
+                                swap.push((t, c));
+                            }
+                        }
+                    }
+                }
+            }
+            layers.push(layer);
+            swaps.push(swap);
+        }
+        // Expand CXSwaps, last layer first so the indices stay valid.
+        for k in (0..layers.len()).rev() {
+            let extra = std::mem::take(&mut swaps[k]);
+            if extra.is_empty() {
+                continue;
+            }
+            let free = k > 0
+                && extra.iter().all(|&(a, b)| {
+                    layers[k - 1]
+                        .iter()
+                        .all(|&(c, t)| ![c, t].contains(&a) && ![c, t].contains(&b))
+                });
+            if free {
+                layers[k - 1].extend(extra);
+            } else {
+                layers.insert(k, extra);
+            }
+        }
+        let mut qubits: Vec<IVec2> = resets.iter().chain(&measures).map(|&(q, _)| q).collect();
+        qubits.extend(layers.iter().flatten().flat_map(|&(c, t)| [c, t]));
+        qubits.sort_by_key(|q| (q.y, q.x));
+        qubits.dedup();
+        for (k, layer) in layers.iter().enumerate() {
+            let mut used = HashSet::new();
+            if !layer.iter().all(|&(c, t)| used.insert(c) && used.insert(t)) {
+                return Err(format!("walk: a qubit is used twice in CX layer {k}").into());
+            }
+        }
+        Ok(RoundSpec {
+            qubits,
+            resets,
+            h_first: Vec::new(),
+            layers,
+            measures,
+        })
+    };
+    let a = build(&template[0..6])?;
+    let b = build(&template[6..12])?;
+    let n = (d * d) as usize;
+    for (name, s) in [("A", &a), ("B", &b)] {
+        if s.data_in().len() != n || s.data_out().len() != n {
+            return Err(format!("walk round {name}: data in/out is not d^2 at d = {d}").into());
+        }
+    }
+    Ok([a, b])
+}
+
+/// Patch walking (arXiv:2605.30455, Sec. 1.1.3, Fig. 48): `rounds` rounds, one lattice step to the
+/// right every 2 rounds, preparing and reading out the logical in `basis` on the moving patch.
+fn walking(top: &str, basis: B, d: i32, rounds: usize) -> Result<String, Error> {
+    if d < 3 || d % 2 == 0 || rounds < 2 {
+        return Err("need odd d >= 3 and at least 2 rounds".into());
+    }
+    let mut specs = Vec::new();
+    for r in 0..rounds {
+        let [a, b] = walk_rounds(top, d, (r / 2) as i32)?;
+        specs.push(if r % 2 == 0 { a } else { b });
+    }
+    for (r, w) in specs.windows(2).enumerate() {
+        let out: HashSet<IVec2> = w[0].data_out().into_iter().collect();
+        let inn: HashSet<IVec2> = w[1].data_in().into_iter().collect();
+        if out != inn {
+            return Err(format!("walk: round {r} data out differs from round {} data in", r + 1).into());
+        }
+    }
+    let logical: Logical = specs[0]
+        .data_in()
+        .iter()
+        .filter(|q| match (top, basis) {
+            ("x-top", B::X) | ("z-top", B::Z) => q.x <= 1,
+            _ => q.y == 1,
+        })
+        .map(|q| ((q.x, q.y), basis))
+        .collect();
+    if logical.len() != d as usize {
+        return Err(format!("logical has weight {} at d = {d}", logical.len()).into());
+    }
+    run_rounds(&specs, logical, basis, basis)
+}
+
 fn parse_basis(s: &str) -> Result<B, Error> {
     match s {
         "x" => Ok(B::X),
@@ -811,9 +1086,16 @@ fn main() -> Result<(), Error> {
             std::fs::write(out, text)?;
             Ok(())
         }
+        [cmd, top, basis, d, rounds, out] if cmd == "walking" => {
+            let basis = parse_basis(basis)?;
+            let text = walking(top, basis, d.parse()?, rounds.parse()?)?;
+            std::fs::write(out, text)?;
+            Ok(())
+        }
         _ => Err(concat!(
             "usage: low-gadgets compact-memory <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
-            "       low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>"
+            "       low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>\n",
+            "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>"
         )
         .into()),
     }
