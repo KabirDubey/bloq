@@ -1139,6 +1139,11 @@ fn run_rounds_deform(
             let logical_flow = round.chunk.flows.last().expect("the logical flow");
             observable.extend(logical_flow.measurements.iter().map(|m| map[m]));
             *current = round.logical_out.clone();
+            if k == 1 && std::env::var_os("LG_TRACE").is_some() {
+                let mut v: Vec<_> = current.iter().map(|(q, b)| (*q, *b == B::X)).collect();
+                v.sort();
+                eprintln!("trace: round {r} out {v:?}");
+            }
             for m in deform.iter().filter(|m| m.round == r && m.observable == k) {
                 if applied.contains(&m.group) {
                     continue;
@@ -1155,9 +1160,19 @@ fn run_rounds_deform(
                     Target::Times(t) => t,
                     Target::Off(region) => {
                         let Some((moved, ms)) = clear_region(current, &items, region) else {
+                            if std::env::var_os("LG_DEBUG").is_some() {
+                                let mut v: Vec<_> = current.iter().collect();
+                                v.sort_by_key(|(k, _)| **k);
+                                eprintln!("debug: round {r} off fails on {v:?}");
+                            }
                             continue;
                         };
                         applied.insert(m.group);
+                        if std::env::var_os("LG_DEBUG").is_some() {
+                            let mut v: Vec<_> = moved.iter().collect();
+                            v.sort_by_key(|(k, _)| **k);
+                            eprintln!("debug: round {r} group {} moved to {v:?}", m.group);
+                        }
                         *current = moved;
                         observable.extend(ms.iter().map(|m| map[m]));
                         continue;
@@ -2285,6 +2300,217 @@ fn cx(top: &str, basis: B, d: i32) -> Result<String, Error> {
     Err(format!("cx: nothing works:\n  {}", errors.join("\n  ")).into())
 }
 
+/// The logical CX in the order of Fig. 53 (arXiv:2605.30455) as low-lead reads it (A26): A is
+/// reset in X, ZZ(C, A) merge and split, a gap, XX(A, T) merge and split, A read out in Z. The two
+/// merges run one after the other here, not overlapped as in the figure (deviation, A26).
+fn cx_zz_first(top: &str, basis: B, d: i32, verbose: bool) -> Result<String, Error> {
+    if d < 3 || d % 2 == 0 {
+        return Err("need odd d >= 3".into());
+    }
+    let h = surgery_rounds(top, true, d, 0)?;
+    let v = surgery_rounds(top, false, d, 0)?;
+    let (oc, ot, oa) = (
+        IVec2::new(0, 2 * d),
+        IVec2::new(2 * d, 0),
+        IVec2::new(2 * d, 2 * d),
+    );
+    let in_c = |q: IVec2| q.x < 2 * d && q.y >= 2 * d;
+    let in_t = |q: IVec2| q.x >= 2 * d && q.y < 2 * d;
+    let in_a = |q: IVec2| q.x >= 2 * d && q.y >= 2 * d;
+    let c_idle = h.sb.shifted(oc).patch(&in_c)?;
+    let t_idle = v.sb.shifted(ot).patch(&in_t)?;
+    let alt = |g: &RoundSpec, n: usize, phase: usize| -> Vec<RoundSpec> {
+        let gi = g.inverse();
+        (0..n)
+            .map(|i| {
+                if (i + phase) % 2 == 0 {
+                    g.clone()
+                } else {
+                    gi.clone()
+                }
+            })
+            .collect()
+    };
+    let block = |s: &SurgeryRounds, o: IVec2| -> Vec<RoundSpec> {
+        let mut r = vec![s.ma.shifted(o), s.mb.shifted(o)];
+        r.extend(s.middle.iter().map(|m| m.shifted(o)));
+        r.extend([s.sa.shifted(o), s.sb.shifted(o)]);
+        r
+    };
+    let step1 = block(&h, oc);
+    let step2 = block(&v, ot);
+    let n = step1.len();
+    let a_h = h.sb.shifted(oc).patch(&in_a)?;
+    let a_v = v.sb.shifted(ot).patch(&in_a)?;
+    let gaps: Vec<Vec<RoundSpec>> = vec![
+        vec![],
+        vec![a_h.inverse()],
+        vec![a_v.inverse()],
+        vec![a_v.inverse(), a_v.clone()],
+        vec![a_h.inverse(), a_v.clone()],
+        vec![a_h.inverse(), a_h.clone(), a_v.inverse(), a_v.clone()],
+    ];
+    let mut errors = Vec::new();
+    for (gi, gap) in gaps.iter().enumerate() {
+        let g = gap.len();
+        for phases in 0..16usize {
+            let p = |i: usize| (phases >> i) & 1;
+            // C: 2 idle rounds, step 1, the gap and n + 2 idle rounds. T: 2 + n idle rounds, the
+            // gap, step 2, 2 idle rounds.
+            let c_pre = alt(&c_idle, 2, p(0));
+            let c_post = alt(&c_idle, g + n + 2, p(1));
+            let t_pre = alt(&t_idle, n + 2 + g, p(2));
+            let t_post = alt(&t_idle, 2, p(3));
+            let mut specs = Vec::new();
+            for i in 0..2 {
+                specs.push(t_pre[i].union(&c_pre[i])?);
+            }
+            for i in 0..n {
+                specs.push(step1[i].union(&t_pre[i + 2])?);
+            }
+            for (i, a) in gap.iter().enumerate() {
+                specs.push(a.union(&c_post[i])?.union(&t_pre[n + 2 + i])?);
+            }
+            for i in 0..n {
+                specs.push(step2[i].union(&c_post[g + i])?);
+            }
+            for i in 0..2 {
+                specs.push(t_post[i].union(&c_post[g + n + i])?);
+            }
+            let first2 = 2 + n + g;
+            // A's spare Z-top corner (A14): reset with the rest of A, or in the other basis.
+            let corners = [
+                None,
+                Some(IVec2::new(2 * d, 4 * d - 1)),
+                Some(IVec2::new(2 * d + 1, 4 * d - 2)),
+            ];
+            // Fresh basis of the strips: one basis for both, or "by merge" (None): X for the ZZ
+            // strip, Z for the XX strip, as Fig. 53 resets them (low-lead's reading).
+            for fresh_opt in [None, Some(B::X), Some(B::Z)] {
+                for corner in corners {
+                    let lines: Vec<(i32, i32)> = if basis == B::X {
+                        (0..d).flat_map(|a| (0..d).map(move |b| (a, b))).collect()
+                    } else {
+                        vec![(1, 1)]
+                    };
+                    for &(lcl, lal) in &lines {
+                        // One choice for both bases, so the X and Z circuits differ only in their
+                        // preparation and readout basis: the first that builds both at d = 3 (A26).
+                        // LG_CX_PICK="<gap> <phases> <fresh>" (e.g. "1 1010 Some(Z)") tries another;
+                        // LG_CX_PICK=any searches all.
+                        let pick = std::env::var("LG_CX_PICK").unwrap_or("2 1010 None".into());
+                        if pick != "any" && pick != format!("{gi} {phases:04b} {fresh_opt:?}") {
+                            continue;
+                        }
+                        let mut specs = specs.clone();
+                        // A's data: reset in X before step 1 (|+>), measured in Z when step 2 ends.
+                        let fresh_of = |r_: usize, q: IVec2| match () {
+                            _ if Some(q) == corner => B::Z,
+                            _ if in_a(q) => B::X,
+                            _ => fresh_opt.unwrap_or(if r_ < first2 { B::X } else { B::Z }),
+                        };
+                        let drop = |r: usize, q: IVec2| (in_a(q) && r >= first2).then_some(B::Z);
+                        if let Err(e) = glue_with(&mut specs, &fresh_of, &drop) {
+                            errors.push(format!("gap {gi} glue: {e}"));
+                            continue;
+                        }
+                        let line = 1;
+                        let at = |r: usize, o: IVec2, l: i32| {
+                            patch_logical(top, basis, d, &specs[r + 1], o, l)
+                        };
+                        let lc = patch_logical(top, basis, d, &specs[0], oc, lcl)?;
+                        let lt = patch_logical(top, basis, d, &specs[0], ot, line)?;
+                        let both = |a: &Logical, b: &Logical| -> Logical {
+                            a.iter().chain(b).map(|(&k, &v)| (k, v)).collect()
+                        };
+                        // Z: observable 1 is Z_C Z_T; the ZZ merge's checks move Z_C into A, so it
+                        // passes the XX seam as one column with Z_T; A's Z readout then takes it.
+                        // X: observable 1 is X_C; it picks up X_A (A's |+>) so it passes the ZZ seam,
+                        // then the XX merge's checks move X_A into T.
+                        let mut times: Vec<(usize, usize, Logical)> = Vec::new();
+                        let mut offs: Vec<(usize, usize)> = Vec::new();
+                        let mut edge_offs: Vec<(usize, usize)> = Vec::new();
+                        let a_edge = |q: IVec2| in_a(q) && q.y >= 4 * d - 2;
+                        // A, and T's two rows next to the XX seam (its spare corner sits there).
+                        let a_seam = |q: IVec2| q.x >= 2 * d && q.y >= 2 * d - 2;
+                        let region: &dyn Fn(IVec2) -> bool;
+                        let logicals = if basis == B::Z {
+                            offs.extend((4..2 + n - 2).map(|r| (1, r)));
+                            // The Z column drifts back into C during the merge (the round's flows):
+                            // move it into A again in each later round of step 1.
+                            offs.extend((5..2 + n).map(|r| (10 + r, r)));
+                            region = &in_c;
+                            vec![lc.clone(), both(&lt, &lc)]
+                        } else {
+                            times.push((0, 1, at(1, oa, lal)?));
+                            offs.extend((first2..first2 + n - 2).map(|r| (1, r)));
+                            // The X row drifts up 2 rows per merged round (the round's flows): move it
+                            // back down into T in each later round of step 2, its own group per round.
+                            offs.extend((first2 + 1..first2 + n).map(|r| (10 + r, r)));
+                            region = &a_seam;
+                            // The row drifts onto A's far boundary row, through A's spare corner,
+                            // where no X check covers it: move it off that row before the XX merge.
+                            for r in 2 + n - 2..first2 {
+                                edge_offs.push((2, r));
+                            }
+                            vec![lt.clone(), lc.clone()]
+                        };
+                        let mut deform: Vec<Deform> = (times.iter())
+                            .map(|(g, r, t)| Deform {
+                                group: *g,
+                                round: *r,
+                                observable: 1,
+                                target: Target::Times(t),
+                            })
+                            .collect();
+                        deform.extend(offs.iter().map(|&(g, r)| Deform {
+                            group: g,
+                            round: r,
+                            observable: 1,
+                            target: Target::Off(region),
+                        }));
+                        // X_T (observable 0) drifts the same way during step 2.
+                        if basis == B::X {
+                            deform.extend((first2..first2 + n).map(|r| Deform {
+                                group: 40 + r,
+                                round: r,
+                                observable: 0,
+                                target: Target::Off(&a_seam),
+                            }));
+                        }
+                        deform.extend(edge_offs.iter().map(|&(g, r)| Deform {
+                            group: g,
+                            round: r,
+                            observable: 1,
+                            target: Target::Off(&a_edge),
+                        }));
+                        let seam = |_: usize, f: &Flow| {
+                            (f.start.iter()).all(|(q, _)| q.x >= 2 * d - 3 && q.y >= 2 * d - 3)
+                        };
+                        match run_rounds_deform(&specs, &logicals, basis, basis, &seam, &deform) {
+                        Ok(text) => {
+                            eprintln!(
+                                "cx-zz-first: {} rounds, gap {gi}, phases {phases:04b}, fresh {fresh_opt:?}, corner {corner:?}, lines {lcl} {lal}",
+                                specs.len()
+                            );
+                            return Ok(text);
+                        }
+                        Err(e) => errors.push(format!(
+                            "gap {gi} phases {phases:04b} fresh {fresh_opt:?} corner {corner:?} lines {lcl} {lal}: {e}"
+                        )),
+                    }
+                    }
+                }
+            }
+        }
+    }
+    errors.dedup();
+    if !verbose {
+        errors.truncate(40);
+    }
+    Err(format!("cx-zz-first: nothing works:\n  {}", errors.join("\n  ")).into())
+}
+
 fn parse_basis(s: &str) -> Result<B, Error> {
     match s {
         "x" => Ok(B::X),
@@ -2332,6 +2558,12 @@ fn main() -> Result<(), Error> {
             std::fs::write(out, text)?;
             Ok(())
         }
+        [cmd, top, basis, d, out] if cmd == "cx-zz-first" => {
+            let basis = parse_basis(basis)?;
+            let text = cx_zz_first(top, basis, d.parse()?, true)?;
+            std::fs::write(out, text)?;
+            Ok(())
+        }
         [cmd, top, orient, basis, d, k, out] if cmd == "h-bridge" => {
             let basis = parse_basis(basis)?;
             let text = surgery(top, orient, basis, d.parse()?, k.parse()?)?;
@@ -2345,7 +2577,8 @@ fn main() -> Result<(), Error> {
             "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
             "       low-gadgets surgery <x-top|z-top> <h|v> <x|z> <d> <out.stim>\n",
             "       low-gadgets h-bridge <x-top|z-top> <h|v> <x|z> <d> <bridge patches k> <out.stim>\n",
-            "       low-gadgets cx <x-top|z-top> <x|z> <d> <out.stim>"
+            "       low-gadgets cx <x-top|z-top> <x|z> <d> <out.stim>\n",
+            "       low-gadgets cx-zz-first <x-top|z-top> <x|z> <d> <out.stim>"
         )
         .into()),
     }
