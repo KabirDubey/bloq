@@ -1,0 +1,41 @@
+{
+ "circuit": "low_gadgets/out/g6_hbridge_xtop_v_x_k2_d5.stim",
+ "d": 5,
+ "expect": 5,
+ "p": 0.001,
+ "qubits": 199,
+ "ticks": 66,
+ "detectors": 768,
+ "observables": 1,
+ "determinism": {
+  "dem_ok": true,
+  "error": null,
+  "nonzero_detectors": [],
+  "nonzero_observables": [],
+  "pass": true
+ },
+ "distance": {
+  "all": 5,
+  "per_observable": [
+   5
+  ]
+ },
+ "distance_pass": true,
+ "sinter": {
+  "shots": 71748,
+  "errors": 243,
+  "per_shot": 0.0033868539889613646,
+  "per_shot_ci": [
+   0.0026431398784635108,
+   0.0042579584099905225
+  ],
+  "rounds": 11,
+  "per_round": 0.00030837084046908547,
+  "per_round_ci": [
+   0.00024057461547222214,
+   0.0003878383467038615
+  ],
+  "seconds": 0.45884954289067537
+ },
+ "pass": true
+}

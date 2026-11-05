@@ -91,3 +91,19 @@ for top in x-top z-top; do for o in h v; do for basis in z x; do
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done; done; done
+
+# G6: H-bridge benchmark (Fig. 9): the G5 merge with k bridge patches between the two patches.
+# k = 0 is G5. At odd k d the bridge is k d + 1 lattice units wide (A17). Same d + 6 rounds.
+for k in 1 2 3; do for top in x-top z-top; do for o in h v; do for basis in z x; do
+  name=g6_hbridge_${top/-/}_${o}_${basis}_k$k
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    "$gen" h-bridge "$top" "$o" "$basis" "$d" "$k" "$out.stim"
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((d + 6)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done; done; done; done
