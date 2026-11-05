@@ -107,3 +107,20 @@ for k in 1 2 3; do for top in x-top z-top; do for o in h v; do for basis in z x;
     "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
   done
 done; done; done; done
+
+# G7: logical CX (Fig. 53, Z-top): XX(A, T) merge and split, one round with A alone, ZZ(C, A) merge and
+# split, A read out in X. 2 + (d + 2) + 1 + (d + 2) + 2 = 2d + 9 rounds (A19 to A22). Z basis only: the X
+# basis is stuck (see the bloq log, G7).
+for basis in z; do
+  name=g7_cx_ztop_$basis
+  if [[ -n "${prefixes[0]}" ]]; then
+    match=0; for p in "${prefixes[@]}"; do [[ $name == "$p"* ]] && match=1; done
+    (( match )) || continue
+  fi
+  for d in 3 5; do
+    out="$here/out/${name}_d$d"
+    "$gen" cx z-top "$basis" "$d" "$out.stim" 2> /dev/null
+    "$py" "$check" "$out.stim" --d "$d" --rounds $((2 * d + 9)) --json "$out.check.json" > /dev/null
+    "$py" -c "import json,sys; j=json.load(open(sys.argv[1])); print(sys.argv[1], 'pass' if j['pass'] else 'FAIL', j['distance'])" "$out.check.json"
+  done
+done

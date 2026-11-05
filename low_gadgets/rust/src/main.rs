@@ -178,6 +178,76 @@ impl RoundSpec {
             measures: self.resets.clone(),
         }
     }
+    /// The round moved by `o`.
+    fn shifted(&self, o: IVec2) -> Self {
+        Self {
+            qubits: self.qubits.iter().map(|&q| q + o).collect(),
+            resets: self.resets.iter().map(|&(q, b)| (q + o, b)).collect(),
+            h_first: self.h_first.iter().map(|&q| q + o).collect(),
+            layers: (self.layers.iter())
+                .map(|l| l.iter().map(|&(c, t)| (c + o, t + o)).collect())
+                .collect(),
+            measures: self.measures.iter().map(|&(q, b)| (q + o, b)).collect(),
+        }
+    }
+    /// The part of the round on the qubits `keep` accepts; an error if a gate leaves that set.
+    fn restricted(&self, keep: &dyn Fn(IVec2) -> bool) -> Result<Self, Error> {
+        if let Some(&(c, t)) = (self.layers.iter().flatten()).find(|&&(c, t)| keep(c) != keep(t)) {
+            return Err(format!("restrict: gate {c} -> {t} crosses the cut").into());
+        }
+        Ok(Self {
+            qubits: self.qubits.iter().copied().filter(|&q| keep(q)).collect(),
+            resets: self
+                .resets
+                .iter()
+                .copied()
+                .filter(|&(q, _)| keep(q))
+                .collect(),
+            h_first: self.h_first.iter().copied().filter(|&q| keep(q)).collect(),
+            layers: (self.layers.iter())
+                .map(|l| l.iter().copied().filter(|&(c, _)| keep(c)).collect())
+                .collect(),
+            measures: self
+                .measures
+                .iter()
+                .copied()
+                .filter(|&(q, _)| keep(q))
+                .collect(),
+        })
+    }
+    /// The part of the round on one patch: the qubits `slot` accepts, and the qubits outside it
+    /// (seam measure qubits) whose gates all reach into it.
+    fn patch(&self, slot: &dyn Fn(IVec2) -> bool) -> Result<Self, Error> {
+        let mut partners: HashMap<IVec2, Vec<IVec2>> = HashMap::new();
+        for &(c, t) in self.layers.iter().flatten() {
+            partners.entry(c).or_default().push(t);
+            partners.entry(t).or_default().push(c);
+        }
+        let keep: HashSet<IVec2> = (self.qubits.iter().copied())
+            .filter(|&q| slot(q) || partners.get(&q).is_some_and(|p| p.iter().all(|&r| slot(r))))
+            .collect();
+        self.restricted(&|q| keep.contains(&q))
+    }
+    /// Two rounds on disjoint qubits run side by side.
+    fn union(&self, other: &Self) -> Result<Self, Error> {
+        let mine: HashSet<IVec2> = self.qubits.iter().copied().collect();
+        if let Some(q) = other.qubits.iter().find(|q| mine.contains(q)) {
+            return Err(format!("union: both rounds use {q}").into());
+        }
+        let mut qubits = self.qubits.clone();
+        qubits.extend(&other.qubits);
+        qubits.sort_by_key(|q| (q.y, q.x));
+        let cat = |a: &[(IVec2, B)], b: &[(IVec2, B)]| [a, b].concat();
+        Ok(Self {
+            qubits,
+            resets: cat(&self.resets, &other.resets),
+            h_first: [&self.h_first[..], &other.h_first[..]].concat(),
+            layers: (self.layers.iter().zip(&other.layers))
+                .map(|(a, b)| [&a[..], &b[..]].concat())
+                .collect(),
+            measures: cat(&self.measures, &other.measures),
+        })
+    }
     fn from_measure_qubits(data: Vec<IVec2>, meas: &[MeasureQubit]) -> Result<Self, Error> {
         let mut qubits = data;
         qubits.extend(meas.iter().map(|m| m.q));
@@ -492,6 +562,59 @@ fn xor_extend_usize(a: &mut Vec<usize>, b: &[usize]) {
     }
 }
 
+/// `l` times a product of `born` (Pauli, measurements) with no support on the qubits `region`
+/// accepts, and the measurements of that product (GF(2) elimination on the region's bits).
+fn clear_region(
+    l: &Logical,
+    born: &[(Logical, Vec<u32>)],
+    region: &dyn Fn(IVec2) -> bool,
+) -> Option<(Logical, Vec<u32>)> {
+    type Bits = BTreeSet<(i32, i32, bool)>;
+    let to_pauli = |l: &Logical| {
+        (l.iter()).fold(Pauli2::default(), |p, (&(x, y), &b)| {
+            p.times(&Pauli2::single(IVec2::new(x, y), b))
+        })
+    };
+    let bits = |p: &Pauli2| -> Bits {
+        p.0.iter()
+            .filter(|(k, _)| region(IVec2::new(k.0, k.1)))
+            .flat_map(|(&(x, y), &(px, pz))| [((x, y, false), px), ((x, y, true), pz)])
+            .filter(|&(_, on)| on)
+            .map(|(k, _)| k)
+            .collect()
+    };
+    type Pivot = (Bits, Pauli2, Vec<u32>);
+    let reduce = |mut w: Bits, mut p: Pauli2, mut ms: Vec<u32>, pivots: &[Pivot]| {
+        while let Some(&lead) = w.iter().next() {
+            let Some(pv) = pivots.iter().find(|pv| pv.0.iter().next() == Some(&lead)) else {
+                break;
+            };
+            w = w.symmetric_difference(&pv.0).copied().collect();
+            p = p.times(&pv.1);
+            xor_extend(&mut ms, &pv.2);
+        }
+        (w, p, ms)
+    };
+    let mut pivots: Vec<Pivot> = Vec::new();
+    for (s, ms) in born {
+        let p = to_pauli(s);
+        let (w, p, ms) = reduce(bits(&p), p, ms.clone(), &pivots);
+        if !w.is_empty() {
+            pivots.push((w, p, ms));
+        }
+    }
+    let p = to_pauli(l);
+    let (w, p, ms) = reduce(bits(&p), p, Vec::new(), &pivots);
+    if !w.is_empty() {
+        return None;
+    }
+    let mut out = Logical::new();
+    for (q, b) in p.iter() {
+        out.insert((q.x, q.y), b?);
+    }
+    Some((out, ms))
+}
+
 /// The data and measure parts of a propagated product. Errors if a measure qubit carries a Pauli
 /// that is not `allowed` there (it would not be deterministic) or a data qubit carries Y.
 fn split(p: &Pauli2, allowed: &HashMap<IVec2, B>) -> Result<(Logical, Vec<IVec2>), Error> {
@@ -614,6 +737,9 @@ struct Round {
     logical_out: Logical,
     /// Single-qubit Paulis this round leaves fixed at its end, with the measurements that fix them.
     fixed: Vec<((i32, i32), B, Vec<u32>)>,
+    /// Every product this round's resets prepare on the output data, with the measurements that
+    /// fix its value (the stabilizers measured this round).
+    born: Vec<(Logical, Vec<u32>)>,
 }
 
 fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Round, Error> {
@@ -689,8 +815,10 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
             }
         }
     };
+    let mut born = Vec::new();
     for (q, mut s_out, mut ms) in outs {
         reduce(&mut s_out, &mut ms);
+        born.push((s_out.clone(), ms.clone()));
         let end = if ends.readout.is_none() {
             pauli_map(&s_out)
         } else if all_in(&s_out, ends.readout) {
@@ -745,6 +873,7 @@ fn build_round(spec: &RoundSpec, logical_in: &Logical, ends: Ends) -> Result<Rou
         data_ids,
         logical_out,
         fixed,
+        born,
     })
 }
 
@@ -795,10 +924,42 @@ fn run_rounds_multi(
     readout: B,
     may_start: &dyn Fn(usize, &Flow) -> bool,
 ) -> Result<String, Error> {
+    run_rounds_deform(specs, logicals, init, readout, may_start, &[])
+}
+
+/// A logical moved at the end of round `round`: observable `observable` is multiplied by a
+/// product of the stabilizers that round measures (and single Paulis its resets fix) that turns
+/// it into the target. Of the entries with one `group`, the first that works applies; an error
+/// if none does.
+struct Deform<'a> {
+    group: usize,
+    round: usize,
+    observable: usize,
+    target: Target<'a>,
+}
+
+enum Target<'a> {
+    /// The logical times this product (which must be one of the round's stabilizers).
+    Times(&'a Logical),
+    /// Any logical with no support on the qubits the region accepts.
+    Off(&'a dyn Fn(IVec2) -> bool),
+}
+
+/// As `run_rounds_multi`, moving logicals as `deform` says (the CX of G7 moves a logical across
+/// a merged patch, so it can pass the next merge; A20 in the log).
+fn run_rounds_deform(
+    specs: &[RoundSpec],
+    logicals: &[Logical],
+    init: B,
+    readout: B,
+    may_start: &dyn Fn(usize, &Flow) -> bool,
+    deform: &[Deform<'_>],
+) -> Result<String, Error> {
     let mut full = CoordCircuit::new();
     let mut built: Vec<(Round, HashMap<u32, u32>)> = Vec::new();
     let mut observables: Vec<Vec<u32>> = vec![Vec::new(); logicals.len()];
     let mut currents: Vec<Logical> = logicals.to_vec();
+    let mut applied: HashSet<usize> = HashSet::new();
     for (r, spec) in specs.iter().enumerate() {
         let ends = Ends {
             init: (r == 0).then_some(init),
@@ -865,7 +1026,7 @@ fn run_rounds_multi(
         }
         let (global_ids, global_data) = emit_round(&mut full, spec, ends)?;
         let mut first = None;
-        for (current, observable) in currents.iter_mut().zip(&mut observables) {
+        for (k, (current, observable)) in currents.iter_mut().zip(&mut observables).enumerate() {
             let round = build_round(spec, current, ends).map_err(|e| format!("round {r}: {e}"))?;
             let map: HashMap<u32, u32> = round
                 .ids
@@ -877,9 +1038,61 @@ fn run_rounds_multi(
             let logical_flow = round.chunk.flows.last().expect("the logical flow");
             observable.extend(logical_flow.measurements.iter().map(|m| map[m]));
             *current = round.logical_out.clone();
+            for m in deform.iter().filter(|m| m.round == r && m.observable == k) {
+                if applied.contains(&m.group) {
+                    continue;
+                }
+                // The checks this round measures and the single Paulis its resets fix.
+                let mut items = round.born.clone();
+                items.extend(
+                    round
+                        .fixed
+                        .iter()
+                        .map(|(q, b, ms)| (Logical::from([(*q, *b)]), ms.clone())),
+                );
+                let target = match m.target {
+                    Target::Times(t) => t,
+                    Target::Off(region) => {
+                        let Some((moved, ms)) = clear_region(current, &items, region) else {
+                            continue;
+                        };
+                        applied.insert(m.group);
+                        *current = moved;
+                        observable.extend(ms.iter().map(|m| map[m]));
+                        continue;
+                    }
+                };
+                let Some((rest, ms)) = clear_region(target, &items, &|_| true) else {
+                    continue;
+                };
+                debug_assert!(rest.is_empty());
+                for (&q, &b) in target {
+                    match current.get(&q) {
+                        Some(&c) if c == b => {
+                            current.remove(&q);
+                        }
+                        Some(_) => return Err(format!("deform: mixed Pauli at {q:?}").into()),
+                        None => {
+                            current.insert(q, b);
+                        }
+                    }
+                }
+                applied.insert(m.group);
+                observable.extend(ms.iter().map(|m| map[m]));
+            }
             first.get_or_insert((round, map));
         }
         built.push(first.expect("at least one logical"));
+        for m in deform
+            .iter()
+            .filter(|m| m.round == r && !applied.contains(&m.group))
+        {
+            if !deform.iter().any(|n| n.group == m.group && n.round > r) {
+                return Err(
+                    format!("round {r}: no target of deformation {} works", m.group).into(),
+                );
+            }
+        }
     }
     // A measurement can join an observable twice (logical flow and a fixed Pauli): keep odd counts.
     let observables: Vec<(u32, Vec<u32>)> = observables
@@ -1437,6 +1650,17 @@ fn surgery_round(
 /// touch is reset there in `fresh` (the bridge qubits of Sec. 1.2 step 2, and the spare corner of
 /// the Z-top figures; assumption A13 in the log). Any other disagreement is an error.
 fn glue(specs: &mut [RoundSpec], fresh: B, bridge: &dyn Fn(IVec2) -> bool) -> Result<(), Error> {
+    glue_with(specs, &|_, _| fresh, &|_, q| bridge(q).then_some(fresh))
+}
+
+/// As `glue`, with the reset basis of each fresh qubit given by `fresh(r, q)`, and a data qubit
+/// that round r drops measured in `drop(r, q)` when that is `Some` (left idle otherwise). `r` is
+/// the index of the round that resets, measures or idles the qubit.
+fn glue_with(
+    specs: &mut [RoundSpec],
+    fresh: &dyn Fn(usize, IVec2) -> B,
+    drop: &dyn Fn(usize, IVec2) -> Option<B>,
+) -> Result<(), Error> {
     for r in 0..specs.len() - 1 {
         let (head, tail) = specs.split_at_mut(r + 1);
         let (prev, next) = (&mut head[r], &mut tail[0]);
@@ -1454,9 +1678,9 @@ fn glue(specs: &mut [RoundSpec], fresh: B, bridge: &dyn Fn(IVec2) -> bool) -> Re
                     return Err(format!("round {} drops data qubit {q}", r + 1).into());
                 }
                 next.qubits.push(q);
-                if bridge(q) {
+                if let Some(b) = drop(r + 1, q) {
                     // A bridge qubit the split leaves: measure it in its reset basis (G6).
-                    next.measures.push((q, fresh));
+                    next.measures.push((q, b));
                 }
             }
         }
@@ -1471,7 +1695,7 @@ fn glue(specs: &mut [RoundSpec], fresh: B, bridge: &dyn Fn(IVec2) -> bool) -> Re
                 if prev.measures.iter().any(|&(m, _)| m == q) {
                     // The Z-top merge (Fig. 51) starts with the corner the split round B resets in X
                     // already in use; read that as a reset the figure does not draw (assumption A13).
-                    next.resets.push((q, fresh));
+                    next.resets.push((q, fresh(r + 1, q)));
                     continue;
                 }
                 if prev.qubits.contains(&q) {
@@ -1482,7 +1706,7 @@ fn glue(specs: &mut [RoundSpec], fresh: B, bridge: &dyn Fn(IVec2) -> bool) -> Re
                     .into());
                 }
                 prev.qubits.push(q);
-                prev.resets.push((q, fresh));
+                prev.resets.push((q, fresh(r, q)));
             }
         }
     }
@@ -1534,29 +1758,18 @@ fn patch_logical(
     Ok(l)
 }
 
-/// H-bridge lattice surgery with bridge width 0 (arXiv:2605.30455, Sec. 1.2; Figs. 50 and 51):
-/// two patches, 2 separate rounds, merge (rounds A and B of the merge figure), merged rounds, split
-/// (rounds A and B of the split figure), 2 separate rounds; perfect preparation and readout in
-/// `basis`. With d - 2 middle rounds the patches are merged for d rounds; d + 6 rounds in all (A11).
-/// Observables: each patch's logical when `basis` is the one the merge measures (XX or ZZ), else
-/// the product of the two.
-fn surgery(top: &str, orient: &str, basis: B, d: i32, k: i32) -> Result<String, Error> {
-    if d < 3 || d % 2 == 0 {
-        return Err("need odd d >= 3".into());
-    }
-    // The bridge: k ancilla patches of d lattice units (2d coordinate units) each (G6). At odd k d
-    // that shifts the second patch by half a checkerboard period; the folded figures need whole
-    // periods, so the bridge gets one more lattice column (k d + 1 units; A17).
-    if k < 0 {
-        return Err("h-bridge: need k >= 0".into());
-    }
-    let units = k * d + (k * d) % 2;
+/// The rounds of one merge and split (Figs. 50, 51): merge rounds A and B, the d - 2 merged middle
+/// rounds, split rounds A and B. `units`: the bridge width in lattice units (G6; 0 for G5).
+struct SurgeryRounds {
+    ma: RoundSpec,
+    mb: RoundSpec,
+    middle: Vec<RoundSpec>,
+    sa: RoundSpec,
+    sb: RoundSpec,
+}
+
+fn surgery_rounds(top: &str, horizontal: bool, d: i32, units: i32) -> Result<SurgeryRounds, Error> {
     let bridge = 2 * units;
-    let horizontal = match orient {
-        "h" => true,
-        "v" => false,
-        other => return Err(format!("{other}: want h or v").into()),
-    };
     use surgery_template as t;
     let (merge, split) = match (top, horizontal) {
         ("x-top", true) => (t::X_H_MERGE, t::X_H_SPLIT),
@@ -1569,16 +1782,6 @@ fn surgery(top: &str, orient: &str, basis: B, d: i32, k: i32) -> Result<String, 
     let mb = surgery_round(&merge[6..12], d, horizontal, bridge, true)?;
     let sa = surgery_round(&split[0..6], d, horizontal, bridge, true)?;
     let sb = surgery_round(&split[6..12], d, horizontal, bridge, false)?;
-    let o = if horizontal {
-        IVec2::new(2 * d + bridge, 0)
-    } else {
-        IVec2::new(0, 2 * d + bridge)
-    };
-    // Separate rounds: split round B, which measures no inter-boundary stabilizer, and its inverse.
-    // (A shifted copy of the single-patch round does not fit: the second patch sits on the merged
-    // checkerboard, which at odd d is the mirror of its own.)
-    let g = sb.clone();
-    let gi = sb.inverse();
     let mut middle = Vec::new();
     if top == "x-top" {
         let mbi = mb.inverse();
@@ -1618,6 +1821,55 @@ fn surgery(top: &str, orient: &str, basis: B, d: i32, k: i32) -> Result<String, 
             middle.push(if k % 2 == 0 { gm.clone() } else { gmi.clone() });
         }
     }
+    Ok(SurgeryRounds {
+        ma,
+        mb,
+        middle,
+        sa,
+        sb,
+    })
+}
+
+/// H-bridge lattice surgery with bridge width 0 (arXiv:2605.30455, Sec. 1.2; Figs. 50 and 51):
+/// two patches, 2 separate rounds, merge (rounds A and B of the merge figure), merged rounds, split
+/// (rounds A and B of the split figure), 2 separate rounds; perfect preparation and readout in
+/// `basis`. With d - 2 middle rounds the patches are merged for d rounds; d + 6 rounds in all (A11).
+/// Observables: each patch's logical when `basis` is the one the merge measures (XX or ZZ), else
+/// the product of the two.
+fn surgery(top: &str, orient: &str, basis: B, d: i32, k: i32) -> Result<String, Error> {
+    if d < 3 || d % 2 == 0 {
+        return Err("need odd d >= 3".into());
+    }
+    // The bridge: k ancilla patches of d lattice units (2d coordinate units) each (G6). At odd k d
+    // that shifts the second patch by half a checkerboard period; the folded figures need whole
+    // periods, so the bridge gets one more lattice column (k d + 1 units; A17).
+    if k < 0 {
+        return Err("h-bridge: need k >= 0".into());
+    }
+    let units = k * d + (k * d) % 2;
+    let bridge = 2 * units;
+    let horizontal = match orient {
+        "h" => true,
+        "v" => false,
+        other => return Err(format!("{other}: want h or v").into()),
+    };
+    let SurgeryRounds {
+        ma,
+        mb,
+        middle,
+        sa,
+        sb,
+    } = surgery_rounds(top, horizontal, d, units)?;
+    let o = if horizontal {
+        IVec2::new(2 * d + bridge, 0)
+    } else {
+        IVec2::new(0, 2 * d + bridge)
+    };
+    // Separate rounds: split round B, which measures no inter-boundary stabilizer, and its inverse.
+    // (A shifted copy of the single-patch round does not fit: the second patch sits on the merged
+    // checkerboard, which at odd d is the mirror of its own.)
+    let g = sb.clone();
+    let gi = sb.inverse();
     // Separate rounds before and after: the phase (G, G^-1 or G^-1, G) whose data agrees with
     // the figure rounds next to them.
     // Bridge data qubits: the split measures them out in the basis they were reset in.
@@ -1678,6 +1930,207 @@ fn surgery(top: &str, orient: &str, basis: B, d: i32, k: i32) -> Result<String, 
     .into())
 }
 
+/// Logical CX by lattice surgery with an ancilla patch (Fig. 53, `fig:CNOT_X_Z`), measurement
+/// based: ancilla A prepared in |0>, M_XX(A, T) by a vertical merge, M_ZZ(C, A) by a horizontal
+/// merge, A measured in X. The figure runs both merges on one ancilla in d + 2 rounds with the
+/// first split under the second merge; here the two merge-and-split blocks of G5 run one after
+/// the other, with one round between them in which A idles alone (assumptions A19, A21).
+/// Layout: target T at (2d, 0), control C at (0, 2d), A at (2d, 2d) (Fig. 53 mirrored top to
+/// bottom), so that A is the second patch of both merges and keeps one checkerboard; under G_Z the
+/// X row of A drifts away from T, so the XX merge comes first (A20). Observables, with perfect
+/// preparation and readout in `basis`: Z: Z_C and Z_T (ends as Z_C Z_T); X: X_T and X_C (ends
+/// as X_C X_T).
+fn cx(top: &str, basis: B, d: i32) -> Result<String, Error> {
+    if d < 3 || d % 2 == 0 {
+        return Err("need odd d >= 3".into());
+    }
+    let h = surgery_rounds(top, true, d, 0)?;
+    let v = surgery_rounds(top, false, d, 0)?;
+    let (oc, ot, oa) = (
+        IVec2::new(0, 2 * d),
+        IVec2::new(2 * d, 0),
+        IVec2::new(2 * d, 2 * d),
+    );
+    let in_c = |q: IVec2| q.x < 2 * d && q.y >= 2 * d;
+    let in_t = |q: IVec2| q.x >= 2 * d && q.y < 2 * d;
+    let in_a = |q: IVec2| q.x >= 2 * d && q.y >= 2 * d;
+    // Idle rounds of C and T: their part of the split round B of their merge, and its inverse.
+    let c_idle = h.sb.shifted(oc).patch(&in_c)?;
+    let t_idle = v.sb.shifted(ot).patch(&in_t)?;
+    let alt = |g: &RoundSpec, n: usize, phase: usize| -> Vec<RoundSpec> {
+        let gi = g.inverse();
+        (0..n)
+            .map(|i| {
+                if (i + phase) % 2 == 0 {
+                    g.clone()
+                } else {
+                    gi.clone()
+                }
+            })
+            .collect()
+    };
+    let block = |s: &SurgeryRounds, o: IVec2| -> Vec<RoundSpec> {
+        let mut r = vec![s.ma.shifted(o), s.mb.shifted(o)];
+        r.extend(s.middle.iter().map(|m| m.shifted(o)));
+        r.extend([s.sa.shifted(o), s.sb.shifted(o)]);
+        r
+    };
+    let step1 = block(&v, ot);
+    let step2 = block(&h, oc);
+    let n = step1.len();
+    // The round between the steps in which A idles alone (A21): a part of a split round B, or
+    // its inverse, whichever joins the two steps.
+    let a_h = h.sb.shifted(oc).patch(&in_a)?;
+    let a_v = v.sb.shifted(ot).patch(&in_a)?;
+    // Two rounds end on A's part of the split round B of the C-A pair, which resets A's spare
+    // corner in X as G5 does before its merge (A13).
+    let gaps: Vec<Vec<RoundSpec>> = vec![
+        vec![],
+        vec![a_v.inverse()],
+        vec![a_h.inverse()],
+        vec![a_h.inverse(), a_h.clone()],
+        vec![a_v.inverse(), a_h.clone()],
+        vec![a_v.inverse(), a_v.clone(), a_h.inverse(), a_h.clone()],
+    ];
+    let mut errors = Vec::new();
+    for (gi, gap) in gaps.iter().enumerate() {
+        let g = gap.len();
+        for phases in 0..16usize {
+            let p = |i: usize| (phases >> i) & 1;
+            // T: 2 idle rounds, step 1, the gap and n + 2 idle rounds. C: 2 + n idle rounds, the
+            // gap, step 2, 2 idle rounds.
+            let t_pre = alt(&t_idle, 2, p(0));
+            let t_post = alt(&t_idle, g + n + 2, p(1));
+            let c_pre = alt(&c_idle, n + 2 + g, p(2));
+            let c_post = alt(&c_idle, 2, p(3));
+            let mut specs = Vec::new();
+            for i in 0..2 {
+                specs.push(t_pre[i].union(&c_pre[i])?);
+            }
+            for i in 0..n {
+                specs.push(step1[i].union(&c_pre[i + 2])?);
+            }
+            for (i, a) in gap.iter().enumerate() {
+                specs.push(a.union(&t_post[i])?.union(&c_pre[n + 2 + i])?);
+            }
+            for i in 0..n {
+                specs.push(step2[i].union(&t_post[g + i])?);
+            }
+            for i in 0..2 {
+                specs.push(t_post[g + n + i].union(&c_post[i])?);
+            }
+            let first2 = 2 + n + g;
+            // X basis: each (merged round, row of A, row of T) for the X_A X_T pick-up is its own
+            // attempt; the row fixes how the drifted row meets A's spare corner (A14) at the ZZ seam.
+            let picks: Vec<(usize, i32, i32)> = if basis == B::X {
+                (2..2 + n - 2)
+                    .flat_map(|r| (0..d).flat_map(move |la| (0..d).map(move |l| (r, la, l))))
+                    .collect()
+            } else {
+                vec![(0, 0, 0)]
+            };
+            // A's spare Z-top corner (A14), bottom left, on one of its two sites.
+            let corners = [None, Some(IVec2::new(2 * d, 4 * d - 1))];
+            for fresh in [B::X, B::Z] {
+                for corner in corners {
+                    let csites: Vec<Option<IVec2>> = if basis == B::X {
+                        vec![
+                            None,
+                            Some(IVec2::new(2 * d, 4 * d - 1)),
+                            Some(IVec2::new(2 * d + 1, 4 * d - 2)),
+                        ]
+                    } else {
+                        vec![None]
+                    };
+                    for csite in csites {
+                        for &(pr, pla, plt) in &picks {
+                            let mut specs = specs.clone();
+                            // A's data: reset in Z before step 1, measured in X when step 2 ends. Its spare
+                            // corner is reset in X, as the X init of a patch does: under G_Z the X row of A
+                            // picks it up on its way to the bottom boundary (A22).
+                            let fresh_of = |_: usize, q: IVec2| match () {
+                                _ if Some(q) == corner => B::X,
+                                _ if in_a(q) => B::Z,
+                                _ => fresh,
+                            };
+                            let drop =
+                                |r: usize, q: IVec2| (in_a(q) && r >= first2).then_some(B::X);
+                            if let Err(e) = glue_with(&mut specs, &fresh_of, &drop) {
+                                errors.push(format!("gap {gi} glue: {e}"));
+                                continue;
+                            }
+                            let line = 1;
+                            let at = |r: usize, o: IVec2, l: i32| {
+                                patch_logical(top, basis, d, &specs[r + 1], o, l)
+                            };
+                            let lc = patch_logical(top, basis, d, &specs[0], oc, line)?;
+                            let lt = patch_logical(top, basis, d, &specs[0], ot, line)?;
+                            let both = |a: &Logical, b: &Logical| -> Logical {
+                                a.iter().chain(b).map(|(&k, &v)| (k, v)).collect()
+                            };
+                            // Deformations of observable 1 (A20), each at the first candidate that is a product
+                            // of that round's checks and fixed single Paulis.
+                            // Z: Z_T picks up Z_A (A's |0>, the round before step 1) on the same column, so it
+                            // passes the XX seam; then the ZZ merge's checks move Z_A into C.
+                            // X: X_C picks up X_A X_T (the XX merge's checks), so it passes the ZZ seam with
+                            // its row in A; A's X readout then takes that row.
+                            let mut times: Vec<(usize, usize, Logical)> = Vec::new();
+                            let mut offs: Vec<(usize, usize)> = Vec::new();
+                            let logicals = if basis == B::Z {
+                                times.push((0, 1, at(1, oa, line)?));
+                                offs.extend((first2..first2 + n - 2).map(|r| (1, r)));
+                                vec![lc.clone(), lt.clone()]
+                            } else {
+                                times.push((0, pr, both(&at(pr, oa, pla)?, &at(pr, ot, plt)?)));
+                                if let Some(c) = csite {
+                                    let x = Logical::from([((c.x, c.y), B::X)]);
+                                    times.extend((0..first2 + 1).map(|r| (1, r, x.clone())));
+                                }
+                                vec![lt.clone(), lc.clone()]
+                            };
+                            let mut deform: Vec<Deform> = (times.iter())
+                                .map(|(g, r, t)| Deform {
+                                    group: *g,
+                                    round: *r,
+                                    observable: 1,
+                                    target: Target::Times(t),
+                                })
+                                .collect();
+                            deform.extend(offs.iter().map(|&(g, r)| Deform {
+                                group: g,
+                                round: r,
+                                observable: 1,
+                                target: Target::Off(&in_a),
+                            }));
+                            // Checks that may start unmatched: those inside A or on its two seams.
+                            let seam = |_: usize, f: &Flow| {
+                                (f.start.iter()).all(|(q, _)| q.x >= 2 * d - 3 && q.y >= 2 * d - 3)
+                            };
+                            match run_rounds_deform(&specs, &logicals, basis, basis, &seam, &deform) {
+                    Ok(text) => {
+                        eprintln!(
+                            "cx: {} rounds, gap {gi}, phases {phases:04b}, fresh {fresh:?}, \
+                             corner {corner:?}, csite {csite:?}, pick {:?}",
+                            specs.len(),
+                            (pr, pla, plt)
+                        );
+                        return Ok(text);
+                    }
+                    Err(e) => errors.push(format!(
+                        "gap {gi} phases {phases:04b} fresh {fresh:?} corner {corner:?} csite {csite:?} pick {:?}: {e}",
+                        (pr, pla, plt)
+                    )),
+                }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    errors.dedup();
+    Err(format!("cx: nothing works:\n  {}", errors.join("\n  ")).into())
+}
+
 fn parse_basis(s: &str) -> Result<B, Error> {
     match s {
         "x" => Ok(B::X),
@@ -1713,6 +2166,12 @@ fn main() -> Result<(), Error> {
             std::fs::write(out, text)?;
             Ok(())
         }
+        [cmd, top, basis, d, out] if cmd == "cx" => {
+            let basis = parse_basis(basis)?;
+            let text = cx(top, basis, d.parse()?)?;
+            std::fs::write(out, text)?;
+            Ok(())
+        }
         [cmd, top, orient, basis, d, k, out] if cmd == "h-bridge" => {
             let basis = parse_basis(basis)?;
             let text = surgery(top, orient, basis, d.parse()?, k.parse()?)?;
@@ -1724,7 +2183,8 @@ fn main() -> Result<(), Error> {
             "       low-gadgets hadamard <x|z> <d> <z-top rounds> <x-top rounds> <out.stim>\n",
             "       low-gadgets walking <x-top|z-top> <x|z> <d> <rounds> <out.stim>\n",
             "       low-gadgets surgery <x-top|z-top> <h|v> <x|z> <d> <out.stim>\n",
-            "       low-gadgets h-bridge <x-top|z-top> <h|v> <x|z> <d> <bridge patches k> <out.stim>"
+            "       low-gadgets h-bridge <x-top|z-top> <h|v> <x|z> <d> <bridge patches k> <out.stim>\n",
+            "       low-gadgets cx <x-top|z-top> <x|z> <d> <out.stim>"
         )
         .into()),
     }
