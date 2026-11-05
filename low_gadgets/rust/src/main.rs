@@ -2030,18 +2030,23 @@ fn cx(top: &str, basis: B, d: i32) -> Result<String, Error> {
                 vec![(0, 0, 0)]
             };
             // A's spare Z-top corner (A14), bottom left, on one of its two sites.
-            let corners = [None, Some(IVec2::new(2 * d, 4 * d - 1))];
+            let corners = [
+                None,
+                Some(IVec2::new(2 * d, 4 * d - 1)),
+                Some(IVec2::new(2 * d + 1, 4 * d - 2)),
+            ];
             for fresh in [B::X, B::Z] {
                 for corner in corners {
-                    let csites: Vec<Option<IVec2>> = if basis == B::X {
-                        vec![
-                            None,
-                            Some(IVec2::new(2 * d, 4 * d - 1)),
-                            Some(IVec2::new(2 * d + 1, 4 * d - 2)),
-                        ]
-                    } else {
-                        vec![None]
-                    };
+                    // X basis: X on A's corner joins the row at one round near the ZZ merge.
+                    let mut csites: Vec<Option<(IVec2, usize)>> = vec![None];
+                    if basis == B::X {
+                        for c in [
+                            IVec2::new(2 * d, 4 * d - 1),
+                            IVec2::new(2 * d + 1, 4 * d - 2),
+                        ] {
+                            csites.extend((first2 - 2..first2 + 2).map(|r| Some((c, r))));
+                        }
+                    }
                     for csite in csites {
                         for &(pr, pla, plt) in &picks {
                             let mut specs = specs.clone();
@@ -2082,9 +2087,8 @@ fn cx(top: &str, basis: B, d: i32) -> Result<String, Error> {
                                 vec![lc.clone(), lt.clone()]
                             } else {
                                 times.push((0, pr, both(&at(pr, oa, pla)?, &at(pr, ot, plt)?)));
-                                if let Some(c) = csite {
-                                    let x = Logical::from([((c.x, c.y), B::X)]);
-                                    times.extend((0..first2 + 1).map(|r| (1, r, x.clone())));
+                                if let Some((c, cr)) = csite {
+                                    times.push((1, cr, Logical::from([((c.x, c.y), B::X)])));
                                 }
                                 vec![lt.clone(), lc.clone()]
                             };
