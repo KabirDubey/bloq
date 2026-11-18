@@ -1,5 +1,6 @@
 mod compiler;
 mod grid;
+mod low_compact;
 pub(crate) mod observable;
 pub(crate) mod port;
 pub(super) mod realignment;
@@ -27,7 +28,7 @@ use crate::block::fixed_bulk::spatial::build_spatial_patch_with_reverse;
 use crate::block::fixed_bulk::utils::{
     make_normal_surface_code_patch, make_surface_code_chunk, make_surface_code_cube_chunks,
 };
-use crate::block::measurements::stage_chunks;
+use crate::block::measurements::{MeasurementIndex, stage_chunks};
 use crate::block::patch::Patch;
 use crate::block::{CompiledTemplate, LoweringTemplate};
 use crate::signature::{Connectivity, LayerSchedule};
@@ -87,6 +88,38 @@ fn compile_cube(
 ) -> Result<CompiledTemplate, CompileError> {
     let (patch, init_data, meas_data) =
         build_cube_patch(kind, connectivity, distance, layer_schedule);
+    // EXPERIMENT (local): the compact memory of arXiv:2605.30455 for an isolated cube.
+    if low_compact::enabled() && connectivity.spatial_pipes().next().is_none() && !kind.is_spatial()
+    {
+        use bloq_utils::Direction;
+        let chunks = low_compact::compact_cube_chunks(
+            kind,
+            distance,
+            rounds,
+            !connectivity.has_pipe(Direction::ZMINUS),
+            !connectivity.has_pipe(Direction::ZPLUS),
+        )?;
+        let ids = |c: &ChunkOrLoop| match c {
+            ChunkOrLoop::Single(chunk) => MeasurementIndex::from_circuit(&chunk.circuit),
+            ChunkOrLoop::Loop { .. } => unreachable!("the first and last chunks are single"),
+        };
+        let init_ids = ids(&chunks[0]);
+        let meas_ids = ids(chunks.last().expect("at least two chunks"));
+        let measurement_chunk = stage_chunks(&chunks).count() - 1;
+        let observable_gateway = resolve_gateway_measurements_at(
+            build_gateway_from_patch(kind, connectivity, distance, &patch),
+            &chunks,
+            measurement_chunk,
+            [(INIT_CHUNK, init_ids), (measurement_chunk, meas_ids)]
+                .into_iter()
+                .collect(),
+            |key| cube_operator_faces(kind, distance, key),
+        );
+        return Ok(Arc::new(LoweringTemplate::from_chunks(
+            chunks,
+            observable_gateway,
+        )?));
+    }
     let cube = make_surface_code_cube_chunks(&patch, Some(&init_data), &meas_data)?;
     let (init, init_ids) = cube.init.expect("cube initialization was requested");
     let repetitions = cube_bulk_repetitions(rounds);
