@@ -1,0 +1,10 @@
+BLOG 1.0
+# G4 native: walk ZXZ one cell along y
+
+module main {
+0: ZXZ [0, 0, 0]
+1: walk ZXZ [0, 0, 1] -> [0, 1, 2]
+2: ZXZ [0, 1, 3]
+[0, 0, 0] -> +Z
+[0, 1, 2] -> +Z
+}

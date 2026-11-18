@@ -1,0 +1,8 @@
+BLOG 1.0
+# G3 native: XZZ -H> ZXX; prepare z, read x
+
+module main {
+0: XZZ [0, 0, 0]
+1: ZXX [0, 0, 1]
+0 -H> 1
+}

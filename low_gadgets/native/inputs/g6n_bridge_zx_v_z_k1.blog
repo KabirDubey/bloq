@@ -1,0 +1,18 @@
+BLOG 1.0
+# G6 native: merge through 1 bridge cubes
+
+module main {
+0: ZXZ [0, 0, 0]
+1: ZXZ [0, 0, 1]
+2: ZXZ [0, 0, 2]
+3: ZXZ [0, 2, 0]
+4: ZXZ [0, 2, 1]
+5: ZXZ [0, 2, 2]
+6: ZXX [0, 1, 1]
+0 -> 1
+1 -> 2
+3 -> 4
+4 -> 5
+1 -> 6
+6 -> 4
+}

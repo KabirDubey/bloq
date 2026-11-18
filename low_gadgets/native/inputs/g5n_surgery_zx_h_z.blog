@@ -1,0 +1,16 @@
+BLOG 1.0
+# G5 native: merge and split of two ZXZ patches
+
+module main {
+0: ZXZ [0, 0, 0]
+1: ZXZ [0, 0, 1]
+2: ZXZ [0, 0, 2]
+3: ZXZ [1, 0, 0]
+4: ZXZ [1, 0, 1]
+5: ZXZ [1, 0, 2]
+0 -> 1
+1 -> 2
+3 -> 4
+4 -> 5
+1 -> 4
+}
