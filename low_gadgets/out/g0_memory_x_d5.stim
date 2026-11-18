@@ -166,5 +166,5 @@ DETECTOR(8, 8) rec[-28] rec[-7] rec[-6] rec[-2] rec[-1]
 DETECTOR(2, 10) rec[-27] rec[-5] rec[-4]
 DETECTOR(6, 10) rec[-26] rec[-3] rec[-2]
 TICK
-# node 2: observable 0 generator 0
+# node 1: observable 0 generator 0
 OBSERVABLE_INCLUDE(0) rec[-23] rec[-18] rec[-13] rec[-8] rec[-3]
